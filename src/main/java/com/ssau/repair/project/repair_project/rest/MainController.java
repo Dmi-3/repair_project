@@ -1,6 +1,5 @@
-package com.ssau.repair.project.repair_project;
+package com.ssau.repair.project.repair_project.rest;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
