@@ -1,7 +1,7 @@
 package com.ssau.repair.project.repair_project.rest.resources;
 
-import com.ssau.repair.project.repair_project.ao.Equipment;
-import com.ssau.repair.project.repair_project.rest.repository.EquipmentRepository;
+import com.ssau.repair.project.repair_project.entities.Equipment;
+import com.ssau.repair.project.repair_project.repositories.EquipmentRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +17,12 @@ public class EquipmentResource
 {
     private static final Logger LOG = Logger.getLogger(EquipmentResource.class);
 
+    private final EquipmentRepository equipmentRepository;
+
     @Autowired
-    EquipmentRepository equipmentRepository;
+    public EquipmentResource(EquipmentRepository equipmentRepository) {
+        this.equipmentRepository = equipmentRepository;
+    }
 
     @GetMapping("/all")
     public List<Equipment> getAll()
@@ -32,7 +36,7 @@ public class EquipmentResource
         return equipmentRepository.findByName(name);
     }
 
-    public Equipment getById(@PathVariable("id") Integer id)
+    public Equipment getById(@PathVariable("id") Long id)
     {
         return equipmentRepository.getOne(id);
     }
@@ -42,30 +46,31 @@ public class EquipmentResource
     {
         try
         {
-            Equipment newEquipment = new Equipment(name);
+            Equipment newEquipment = new Equipment();
+            newEquipment.setName(name);
             equipmentRepository.save(newEquipment);
-            return "Equipment "+name+" was added in data base.";
+            return "The Equipment "+name+" was added in data base.";
         }
         catch (Exception ex)
         {
-            LOG.error("Error during creating new Equipment.");
+            LOG.error("An error occurred during creating new Equipment.");
             return "Error: Equipment wasn't created.";
         }
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Integer id)
+    public String delete(@PathVariable("id") Long id)
     {
         Equipment equipment = getById(id);
 
         if (equipment == null)
         {
-            return "Equipment didn't found";
+            return "The Equipment wasn't found";
         }
         else
         {
             equipmentRepository.delete(equipment);
-            return "Equipment "+equipment.getName()+" was deleted";
+            return "The Equipment "+equipment.getName()+" was deleted";
         }
     }
 }
