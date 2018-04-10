@@ -5,10 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface EquipmentCategoryRepository extends JpaRepository<EquipmentCategory, Long> {
-
-    @Override
-    List<EquipmentCategory> findAll();
-
+public interface EquipmentCategoryRepository extends JpaRepository<EquipmentCategory, Long>
+{
     List<EquipmentCategory> findByName(String name);
 }

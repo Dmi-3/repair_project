@@ -6,43 +6,56 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Maintenance_schedule")
-public class MaintenanceSchedule implements Serializable {
-
+public class MaintenanceSchedule implements Serializable
+{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "Id")
     private Long id;
 
-    @Column(name = "equipment_id")
-    private Long equipmentId;
+    @ManyToOne
+    @JoinColumn(name = "equipment_id")
+    private Equipment equipment;
 
-    public Long getEquipmentId() {
-        return equipmentId;
-    }
-
-    public void setEquipmentId(Long equipmentId) {
-        this.equipmentId = equipmentId;
-    }
-
-    @Column(name = "repair_type")
-    private Long repairTypeId;
-
-    public Long getRepairTypeId() {
-        return repairTypeId;
-    }
-
-    public void setRepairTypeId(Long repairTypeId) {
-        this.repairTypeId = repairTypeId;
-    }
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "repair_type_id")
+    private RepairType repairType;
 
     @Column(name = "date")
     private LocalDateTime date;
 
-    public LocalDateTime getDate() {
+    public Long getId()
+    {
+        return id;
+    }
+
+    public Equipment getEquipment()
+    {
+        return equipment;
+    }
+
+    public void setEquipment(Equipment equipment)
+    {
+        this.equipment = equipment;
+    }
+
+    public RepairType getRepairType()
+    {
+        return repairType;
+    }
+
+    public void setRepairType(RepairType repairType)
+    {
+        this.repairType = repairType;
+    }
+
+    public LocalDateTime getDate()
+    {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDateTime date)
+    {
         this.date = date;
     }
 }
