@@ -6,6 +6,7 @@ import com.ssau.repair.project.repair_project.repositories.EquipmentCategoryRepo
 import com.ssau.repair.project.repair_project.repositories.EquipmentRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -28,17 +29,18 @@ public class EquipmentResource
     }
 
     @GetMapping("/all")
-    public List<Equipment> getAll()
+    public String getAll(Model model)
     {
         try
         {
-            return equipmentRepository.findAll();
+            model.addAttribute("equipments", equipmentRepository.findAll());
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during getting all equipments objects.", ex);
-            return Collections.emptyList();
+            model.addAttribute("equipmentsCategories", Collections.emptyList());
         }
+        return "admin_functions/data_base/equipments";
     }
 
     @ResponseBody
@@ -138,5 +140,10 @@ public class EquipmentResource
             LOG.error("An error occurred during removing the equipment object.", ex);
             return "Error: the equipment object wasn't removed.";
         }
+    }
+
+    private String getRedirectEquipmentsPage()
+    {
+        return "/equipments";
     }
 }

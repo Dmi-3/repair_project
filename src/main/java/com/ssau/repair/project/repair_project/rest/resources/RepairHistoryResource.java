@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/equipmentsCategory")
+@RequestMapping("/rest/repairHistory")
 public class RepairHistoryResource
 {
     private static final Logger LOG = Logger.getLogger(RepairHistoryResource.class);
