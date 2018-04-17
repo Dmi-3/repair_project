@@ -8,4 +8,6 @@ import java.util.List;
 public interface RepairStandardRepository extends JpaRepository<RepairStandard, Long>
 {
     List<RepairStandard> findByName(String name);
+
+    RepairStandard getById(Long id);
 }

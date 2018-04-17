@@ -69,7 +69,7 @@ public class MaintenanceScheduleResource
 
 
     @ResponseBody
-    @RequestMapping(value = "/create", method = RequestMethod.GET)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String create(@RequestParam("equipmentId") Long equipmentId, @RequestParam("repairTypeId") Long repairTypeId)
     {
         if (equipmentId == null)
@@ -101,7 +101,7 @@ public class MaintenanceScheduleResource
     }
 
     @ResponseBody
-    @RequestMapping(value = "/remove", method = RequestMethod.GET)
+    @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public String delete(@RequestParam("id") Long id)
     {
         if (id == null)

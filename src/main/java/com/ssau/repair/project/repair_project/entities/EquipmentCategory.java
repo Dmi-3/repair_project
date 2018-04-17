@@ -9,7 +9,8 @@ import java.util.Set;
 public class EquipmentCategory implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "equipment_categories_sequence", sequenceName = "equipment_categories_id_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "equipment_categories_sequence")
     @Column(name = "Id")
     private Long id;
 
@@ -18,6 +19,9 @@ public class EquipmentCategory implements Serializable
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "equipmentCategory")
     private Set<Equipment> equipments;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "repairStandards")
+    private Set<RepairStandard> repairStandards;
 
     public EquipmentCategory()
     {
@@ -52,5 +56,15 @@ public class EquipmentCategory implements Serializable
     public String toString()
     {
         return "id: " + this.getId() + " name: " + this.getName();
+    }
+
+    public Set<RepairStandard> getRepairStandards()
+    {
+        return repairStandards;
+    }
+
+    public void setRepairStandards(Set<RepairStandard> repairStandards)
+    {
+        this.repairStandards = repairStandards;
     }
 }

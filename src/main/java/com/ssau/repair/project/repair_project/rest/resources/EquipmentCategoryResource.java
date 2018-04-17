@@ -84,13 +84,13 @@ public class EquipmentCategoryResource
         }
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.GET)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String create(@RequestParam("name") String name,
                          final RedirectAttributes redirectAttributes)
     {
         if (name == null || name.trim().isEmpty())
         {
-            redirectAttributes.addFlashAttribute("error", "The name of the equipment category object wasn't found.");
+            redirectAttributes.addFlashAttribute("warning", "The name of the equipment category object wasn't found.");
             return "redirect:" + getRedirectCategoryPage();
         }
 
@@ -160,18 +160,26 @@ public class EquipmentCategoryResource
             return "redirect:" + getRedirectCategoryPage();
         }
 
-        EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(id);
-
-        if (equipmentCategory == null)
+        try
         {
-            redirectAttributes.addFlashAttribute("warning", "The edited category with id" + id + "wasn't found.");
-            return "redirect:" + getRedirectCategoryPage();
+            EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(id);
+
+            if (equipmentCategory == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The edited category with id" + id + "wasn't found.");
+                return "redirect:" + getRedirectCategoryPage();
+            }
+
+            equipmentCategory.setName(name);
+            equipmentCategoryRepository.save(equipmentCategory);
+
+            redirectAttributes.addFlashAttribute("success", "The equipment category with id" + id + " was changed.");
         }
-
-        equipmentCategory.setName(name);
-        equipmentCategoryRepository.save(equipmentCategory);
-
-        redirectAttributes.addFlashAttribute("success", "The equipment category with id" + id + " was changed.");
+        catch (Exception ex)
+        {
+            LOG.error("An error occurred during updating the equipment category object.", ex);
+            redirectAttributes.addFlashAttribute("error", "An error occurred during updating the equipment category object.");
+        }
         return "redirect:" + getRedirectCategoryPage();
     }
 

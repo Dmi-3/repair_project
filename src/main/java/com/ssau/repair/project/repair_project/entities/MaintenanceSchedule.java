@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 public class MaintenanceSchedule implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "maintenance_schedule_sequence", sequenceName = "maintenance_schedule_id_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "maintenance_schedule_sequence")
     @Column(name = "Id")
     private Long id;
 
@@ -20,6 +21,10 @@ public class MaintenanceSchedule implements Serializable
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "repair_type_id")
     private RepairType repairType;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "repair_standard_id")
+    private RepairStandard repairStandard;
 
     @Column(name = "date")
     private LocalDateTime date;
@@ -57,5 +62,15 @@ public class MaintenanceSchedule implements Serializable
     public void setDate(LocalDateTime date)
     {
         this.date = date;
+    }
+
+    public RepairStandard getRepairStandard()
+    {
+        return repairStandard;
+    }
+
+    public void setRepairStandard(RepairStandard repairStandard)
+    {
+        this.repairStandard = repairStandard;
     }
 }

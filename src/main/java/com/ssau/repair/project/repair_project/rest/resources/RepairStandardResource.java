@@ -1,45 +1,62 @@
 package com.ssau.repair.project.repair_project.rest.resources;
 
+import com.ssau.repair.project.repair_project.entities.EquipmentCategory;
 import com.ssau.repair.project.repair_project.entities.RepairStandard;
+import com.ssau.repair.project.repair_project.entities.RepairType;
+import com.ssau.repair.project.repair_project.repositories.EquipmentCategoryRepository;
 import com.ssau.repair.project.repair_project.repositories.RepairStandardRepository;
+import com.ssau.repair.project.repair_project.repositories.RepairTypeRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RestController
-@RequestMapping("/rest/repairStandards")
+@Controller
+@RequestMapping("/repair-standards")
 public class RepairStandardResource
 {
     private static final Logger LOG = Logger.getLogger(RepairStandardResource.class);
 
     private final RepairStandardRepository repairStandardRepository;
+    private final EquipmentCategoryRepository equipmentCategoryRepository;
+    private final RepairTypeRepository repairTypeRepository;
 
     @Autowired
-    public RepairStandardResource(RepairStandardRepository repairStandardRepository)
+    public RepairStandardResource(RepairStandardRepository repairStandardRepository, EquipmentCategoryRepository equipmentCategoryRepository, RepairTypeRepository repairTypeRepository)
     {
         this.repairStandardRepository = repairStandardRepository;
+        this.equipmentCategoryRepository = equipmentCategoryRepository;
+        this.repairTypeRepository = repairTypeRepository;
     }
 
-    @GetMapping("/all")
-    public List<RepairStandard> getAll()
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public String getAll(Model model)
     {
         try
         {
-            return repairStandardRepository.findAll();
+            model.addAttribute("repairStandards", repairStandardRepository.findAll());
+            model.addAttribute("equipmentsCategories", equipmentCategoryRepository.findAll());
+            model.addAttribute("repairTypes", repairTypeRepository.findAll());
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during getting all repair standard objects.", ex);
-            return Collections.emptyList();
+            model.addAttribute("repairStandards", Collections.emptyList());
+            model.addAttribute("error", "An error occurred during getting all repair standard objects.");
         }
+        return "admin_functions/data_base/repair-standards";
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/getByName", method = RequestMethod.GET)
-    public List<RepairStandard> getByName(@RequestParam("name") String name)
+    @RequestMapping(value = "/findByName", method = RequestMethod.GET)
+    public List<RepairStandard> getByName(@RequestParam(value = "name", required = false) String name)
     {
         if (name == null)
         {
@@ -57,9 +74,8 @@ public class RepairStandardResource
         }
     }
 
-    @ResponseBody
     @RequestMapping(value = "/getById", method = RequestMethod.GET)
-    public RepairStandard getById(@RequestParam("id") Long id)
+    public RepairStandard getById(@RequestParam(value = "id", required = false) Long id)
     {
         if (id == null)
         {
@@ -77,56 +93,187 @@ public class RepairStandardResource
         }
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/create", method = RequestMethod.GET)
-    public String create(@RequestParam("name") String name)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public String create(@RequestParam(value = "name", required = false) String name,
+                         @RequestParam(value = "categoryId", required = false) Long categoryId,
+                         @RequestParam(value = "repairTypeId", required = false) Long repairTypeId,
+                         @RequestParam(value = "laborIntensity", required = false) Integer laborIntensity,
+                         final RedirectAttributes redirectAttributes)
     {
-        if (name == null)
+
+        if (name == null || name.trim().isEmpty())
         {
-            return "Id of the repair standard object wasn't found.";
+            redirectAttributes.addFlashAttribute("warning", "The name of the repair standard object wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (categoryId == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The category id of the repair standard object wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (repairTypeId == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The repair type id of the repair standard object wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (laborIntensity == null || laborIntensity <= 0)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The incorrect value of labor intensity for the repair standard.");
+            return "redirect:" + getRedirectRepairStandardsPage();
         }
 
         try
         {
             RepairStandard repairStandard = new RepairStandard();
+            EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(categoryId);
+            if (equipmentCategory == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The edited category with id" + categoryId + "wasn't found.");
+                return "redirect:" + getRedirectRepairStandardsPage();
+            }
+
+            RepairType repairType = repairTypeRepository.getById(repairTypeId);
+
+            if (repairType == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The repair type with id" + repairTypeId + "wasn't found.");
+                return "redirect:" + getRedirectRepairStandardsPage();
+            }
+
             repairStandard.setName(name);
+            repairStandard.setEquipmentCategory(equipmentCategory);
+            repairStandard.setRepairType(repairType);
+            repairStandard.setLaborIntensity(laborIntensity);
             repairStandardRepository.save(repairStandard);
-            return "The repair standard object " + name + " was added in data base.";
+            redirectAttributes.addFlashAttribute("success", "The repair standard was added in data base.");
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during creating the repair standard object.", ex);
-            return "Error: The repair standard object wasn't created.";
+            redirectAttributes.addFlashAttribute("error", "The repair standard wasn't created.");
         }
+        return "redirect:" + getRedirectRepairStandardsPage();
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/remove", method = RequestMethod.GET)
-    public String delete(@RequestParam("id") Long id)
+    @RequestMapping(value = "/remove", method = RequestMethod.POST)
+    public String delete(@RequestParam(value = "repairStandardsIds", required = false) String[] repairStandardIds,
+                         final RedirectAttributes redirectAttributes)
     {
-        if (id == null)
+        if (repairStandardIds == null || repairStandardIds.length == 0)
         {
-            return "The repair standard object id wasn't found";
+            redirectAttributes.addFlashAttribute("warning", "The repair standards objects for remove wasn't found, please select " +
+                    "interesting you repair standards for remove by a checkbox.");
+            return "redirect:" + getRedirectRepairStandardsPage();
         }
 
         try
         {
-            RepairStandard repairStandard = getById(id);
-
-            if (repairStandard == null)
+            for (String id : repairStandardIds)
             {
-                return "The repair standard object with id " + id + " wasn't found";
-            }
+                RepairStandard repairStandard = repairStandardRepository.getById(Long.parseLong(id));
 
-            repairStandardRepository.delete(repairStandard);
-            return "The repair standard object " + repairStandard.getName() + " was deleted";
+                if (repairStandard == null)
+                {
+                    continue;
+                }
+
+                repairStandardRepository.delete(repairStandard);
+            }
+            redirectAttributes.addFlashAttribute("success", "The repair standards object(s) with ids: " +
+                    Arrays.toString(repairStandardIds) + " were deleted.");
         }
         catch (Exception ex)
         {
-            LOG.error("An error occurred during removing the repair standard object.", ex);
-            return "Error: the repair standard object wasn't removed.";
+            LOG.error("An error occurred during removing the repair standards object(s).", ex);
+            redirectAttributes.addFlashAttribute("error", "An error occurred during removing the repair standards object(s).");
         }
-
+        return "redirect:" + getRedirectRepairStandardsPage();
     }
 
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam(value = "id", required = false) Long id,
+                         @RequestParam(value = "name", required = false) String name,
+                         @RequestParam(value = "categoryId", required = false) Long categoryId,
+                         @RequestParam(value = "repairTypeId", required = false) Long repairTypeId,
+                         @RequestParam(value = "laborIntensity", required = false) Integer laborIntensity,
+                         final RedirectAttributes redirectAttributes)
+    {
+        if (id == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "Id of the repair standard wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (name == null || name.trim().isEmpty())
+        {
+            redirectAttributes.addFlashAttribute("warning", "Name of the repair standard with id " + id + "wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (categoryId == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "Id of the edited category wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (repairTypeId == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The repair type id of the repair standard object wasn't found.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        if (laborIntensity == null || laborIntensity <= 0)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The incorrect value of labor intensity for the repair standard.");
+            return "redirect:" + getRedirectRepairStandardsPage();
+        }
+
+        try
+        {
+            RepairStandard repairStandard = repairStandardRepository.getById(id);
+
+            if (repairStandard == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The repair standard with id" + id + "wasn't found.");
+                return "redirect:" + getRedirectRepairStandardsPage();
+            }
+
+            EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(categoryId);
+            if (equipmentCategory == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The edited category with id" + categoryId + "wasn't found.");
+                return "redirect:" + getRedirectRepairStandardsPage();
+            }
+
+            RepairType repairType = repairTypeRepository.getById(repairTypeId);
+
+            if (repairType == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The repair type with id" + repairTypeId + "wasn't found.");
+                return "redirect:" + getRedirectRepairStandardsPage();
+            }
+
+            repairStandard.setName(name);
+            repairStandard.setEquipmentCategory(equipmentCategory);
+            repairStandard.setRepairType(repairType);
+            repairStandard.setLaborIntensity(laborIntensity);
+            repairStandardRepository.save(repairStandard);
+
+            redirectAttributes.addFlashAttribute("success", "The repair standard with id" + id + " was changed.");
+        }
+        catch (Exception ex)
+        {
+            LOG.error("An error occurred during updating the repair standard object.", ex);
+            redirectAttributes.addFlashAttribute("error", "An error occurred during updating the repair standard object.");
+        }
+        return "redirect:" + getRedirectRepairStandardsPage();
+    }
+
+    private String getRedirectRepairStandardsPage()
+    {
+        return "/repair-standards";
+    }
 }

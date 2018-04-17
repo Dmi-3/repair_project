@@ -63,7 +63,7 @@ public class RepairHistoryResource
     }
 
     @ResponseBody
-    @RequestMapping(value = "/create", method = RequestMethod.GET)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String create(@RequestParam("scheduleId") Long scheduleId)
     {
         if (scheduleId == null)
@@ -88,7 +88,7 @@ public class RepairHistoryResource
     }
 
     @ResponseBody
-    @RequestMapping(value = "/remove", method = RequestMethod.GET)
+    @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public String delete(@RequestParam("id") Long id)
     {
         if (id == null)

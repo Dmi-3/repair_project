@@ -30,9 +30,22 @@ var editEquipment = function(id, name, categoryId)
 {
     $("#editEquipmentId").val(id);
     $("#editEquipmentNameInput").val(name);
-    var categories_select2 = $("#editCategoriesList");
-    categories_select2.val(categoryId).trigger('change');
+    $("#editCategoriesList").val(categoryId).trigger('change');
 };
+
+var editRepairType = function(id, name)
+{
+    $("#editRepairTypeId").val(id);
+    $("#editRepairTypeName").val(name);
+};
+
+var editRepairStandard = function (id, name, categoryId, repairTypeId, laborIntensity) {
+    $("#editRepairStandardId").val(id);
+    $("#editRepairStandardName").val(name);
+    $("#editCategoriesList").val(categoryId).trigger('change');
+    $("#editRepairTypesList").val(repairTypeId).trigger('change');
+    $("#editLaborIntensity").val(laborIntensity);
+}
 
 /*
 var removeCategories = function () {

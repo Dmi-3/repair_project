@@ -83,7 +83,7 @@ public class RepairTypeResource
         }
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.GET)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String create(@RequestParam("name") String name,
                          final RedirectAttributes redirectAttributes)
     {
@@ -108,7 +108,7 @@ public class RepairTypeResource
         return "redirect:" + getRedirectRepairTypesPage();
     }
 
-    @RequestMapping(value = "/remove", method = RequestMethod.GET)
+    @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public String delete(@RequestParam("repairTypesIds") String[] repairTypesIds,
                          final RedirectAttributes redirectAttributes)
     {

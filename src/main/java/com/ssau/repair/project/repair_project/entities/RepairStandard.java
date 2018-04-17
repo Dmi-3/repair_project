@@ -8,26 +8,21 @@ import java.io.Serializable;
 public class RepairStandard implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "repair_standards_sequence", sequenceName = "repair_standards_id_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "repair_standards_sequence")
     @Column(name = "Id")
     private Long id;
+
+    @Column(name = "Name")
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "equipment_category_id")
     private EquipmentCategory equipmentCategory;
 
-    @Column(name = "Name")
-    private String name;
-
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Repair_type_id")
     private RepairType repairType;
-
-    @Column(name = "Repair_periodicity")
-    private Integer repairPeriodicity;
-
-    @Column(name = "Equipment_downtime")
-    private Integer equipmentDowntime;
 
     @Column(name = "Labor_intensity")
     private Integer laborIntensity;
@@ -69,26 +64,6 @@ public class RepairStandard implements Serializable
     public void setRepairType(RepairType repairType)
     {
         this.repairType = repairType;
-    }
-
-    public Integer getRepairPeriodicity()
-    {
-        return repairPeriodicity;
-    }
-
-    public void setRepairPeriodicity(Integer repairPeriodicity)
-    {
-        this.repairPeriodicity = repairPeriodicity;
-    }
-
-    public Integer getEquipmentDowntime()
-    {
-        return equipmentDowntime;
-    }
-
-    public void setEquipmentDowntime(Integer equipmentDowntime)
-    {
-        this.equipmentDowntime = equipmentDowntime;
     }
 
     public Integer getLaborIntensity()

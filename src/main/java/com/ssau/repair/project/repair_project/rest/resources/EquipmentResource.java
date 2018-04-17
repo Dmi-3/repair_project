@@ -158,7 +158,7 @@ public class EquipmentResource
         }
         catch (Exception ex)
         {
-            LOG.error("An error occurred during removing the equipment object.", ex);
+            LOG.error("An error occurred during removing the equipment object(s).", ex);
             redirectAttributes.addFlashAttribute("error", "An error occurred during removing the equipment object(s).");
         }
         return "redirect:" + getRedirectEquipmentsPage();
@@ -188,27 +188,35 @@ public class EquipmentResource
             return "redirect:" + getRedirectEquipmentsPage();
         }
 
-        Equipment equipment = equipmentRepository.getById(id);
-
-        if (equipment == null)
+        try
         {
-            redirectAttributes.addFlashAttribute("warning", "The edited equipment with id" + id + "wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            Equipment equipment = equipmentRepository.getById(id);
+
+            if (equipment == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The edited equipment with id" + id + "wasn't found.");
+                return "redirect:" + getRedirectEquipmentsPage();
+            }
+
+            EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(categoryId);
+
+            if (equipmentCategory == null)
+            {
+                redirectAttributes.addFlashAttribute("warning", "The edited category with id" + id + "wasn't found.");
+                return "redirect:" + getRedirectEquipmentsPage();
+            }
+
+            equipment.setName(name);
+            equipment.setEquipmentCategory(equipmentCategory);
+            equipmentRepository.save(equipment);
+
+            redirectAttributes.addFlashAttribute("success", "The equipment category with id" + id + " was changed.");
         }
-
-        EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(categoryId);
-
-        if (equipmentCategory == null)
+        catch (Exception ex)
         {
-            redirectAttributes.addFlashAttribute("warning", "The edited category with id" + id + "wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            LOG.error("An error occurred during updating the equipment object.", ex);
+            redirectAttributes.addFlashAttribute("error", "An error occurred during updating the equipment object.");
         }
-
-        equipment.setName(name);
-        equipment.setEquipmentCategory(equipmentCategory);
-        equipmentRepository.save(equipment);
-
-        redirectAttributes.addFlashAttribute("success", "The equipment category with id" + id + " was changed.");
         return "redirect:" + getRedirectEquipmentsPage();
     }
 

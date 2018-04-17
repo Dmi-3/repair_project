@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 public class RepairHistory implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "repair_history_sequence", sequenceName = "repair_history_id_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "repair_history_sequence")
     @Column(name = "Id")
     private Long id;
 
