@@ -29,7 +29,7 @@ public class EquipmentCategoryResource
         this.equipmentCategoryRepository = equipmentCategoryRepository;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public String getAll(Model model)
     {
         try
@@ -40,6 +40,7 @@ public class EquipmentCategoryResource
         {
             LOG.error("An error occurred during getting all equipments categories objects.", ex);
             model.addAttribute("equipmentsCategories", Collections.emptyList());
+            model.addAttribute("error", "An error occurred during getting all equipments categories objects.");
         }
         return "admin_functions/data_base/equipment-category";
     }
@@ -74,7 +75,7 @@ public class EquipmentCategoryResource
 
         try
         {
-            return equipmentCategoryRepository.getOne(id);
+            return equipmentCategoryRepository.getById(id);
         }
         catch (Exception ex)
         {
@@ -84,12 +85,13 @@ public class EquipmentCategoryResource
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.GET)
-    public String create(@RequestParam("name") String name, final RedirectAttributes redirectAttributes)
+    public String create(@RequestParam("name") String name,
+                         final RedirectAttributes redirectAttributes)
     {
         if (name == null || name.trim().isEmpty())
         {
+            redirectAttributes.addFlashAttribute("error", "The name of the equipment category object wasn't found.");
             return "redirect:" + getRedirectCategoryPage();
-            //return "The name of the equipment category object wasn't found.";
         }
 
         try
@@ -108,7 +110,8 @@ public class EquipmentCategoryResource
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
-    public String remove(@RequestParam(value = "categoryIds", required = false) String[] checkBoxesIds, final RedirectAttributes redirectAttributes)
+    public String remove(@RequestParam(value = "categoryIds", required = false) String[] checkBoxesIds,
+                         final RedirectAttributes redirectAttributes)
     {
         if (checkBoxesIds == null || checkBoxesIds.length == 0)
         {
@@ -121,7 +124,7 @@ public class EquipmentCategoryResource
         {
             for (String id : checkBoxesIds)
             {
-                EquipmentCategory equipmentCategory = getById(Long.parseLong(id));
+                EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(Long.parseLong(id));
 
                 if (equipmentCategory == null)
                 {
@@ -142,7 +145,8 @@ public class EquipmentCategoryResource
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public String update(@RequestParam(value = "id", required = false) Long id,
-                         @RequestParam(value = "name", required = false) String name, final RedirectAttributes redirectAttributes)
+                         @RequestParam(value = "name", required = false) String name,
+                         final RedirectAttributes redirectAttributes)
     {
         if (id == null)
         {
@@ -152,22 +156,22 @@ public class EquipmentCategoryResource
 
         if (name == null || name.trim().isEmpty())
         {
-            redirectAttributes.addFlashAttribute("warning", "Name of the edited category with id"+ id +"wasn't found.");
+            redirectAttributes.addFlashAttribute("warning", "Name of the edited category with id" + id + "wasn't found.");
             return "redirect:" + getRedirectCategoryPage();
         }
 
-        EquipmentCategory equipmentCategory = getById(id);
+        EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(id);
 
         if (equipmentCategory == null)
         {
-            redirectAttributes.addFlashAttribute("warning", "The edited category with id"+ id +"wasn't found.");
+            redirectAttributes.addFlashAttribute("warning", "The edited category with id" + id + "wasn't found.");
             return "redirect:" + getRedirectCategoryPage();
         }
 
         equipmentCategory.setName(name);
         equipmentCategoryRepository.save(equipmentCategory);
 
-        redirectAttributes.addFlashAttribute("success", "The equipment category with id"+ id +" was changed.");
+        redirectAttributes.addFlashAttribute("success", "The equipment category with id" + id + " was changed.");
         return "redirect:" + getRedirectCategoryPage();
     }
 

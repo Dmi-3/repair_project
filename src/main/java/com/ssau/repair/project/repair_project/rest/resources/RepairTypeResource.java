@@ -4,13 +4,19 @@ import com.ssau.repair.project.repair_project.entities.RepairType;
 import com.ssau.repair.project.repair_project.repositories.RepairTypeRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RestController
-@RequestMapping("/rest/repairType")
+@Controller
+@RequestMapping("/repair-types")
 public class RepairTypeResource
 {
     private static final Logger LOG = Logger.getLogger(EquipmentResource.class);
@@ -23,23 +29,24 @@ public class RepairTypeResource
         this.repairTypeRepository = repairTypeRepository;
     }
 
-    @GetMapping("/all")
-    public List<RepairType> getAll()
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public String getAll(Model model)
     {
         try
         {
-            return repairTypeRepository.findAll();
+            model.addAttribute("repairTypes", repairTypeRepository.findAll());
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during getting all repair types objects.", ex);
-            return Collections.emptyList();
+            model.addAttribute("repairTypes", Collections.emptyList());
+            model.addAttribute("error", "An error occurred during getting all repair types objects.");
         }
+        return "admin_functions/data_base/repair-types";
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/getByName", method = RequestMethod.GET)
-    public List<RepairType> getByName(@RequestParam("name") String name)
+    @RequestMapping(value = "/findByName", method = RequestMethod.GET)
+    public List<RepairType> getByName(@RequestParam(value = "name", required = false) String name)
     {
         if (name == null)
         {
@@ -53,13 +60,12 @@ public class RepairTypeResource
         catch (Exception ex)
         {
             LOG.error("An error occurred during getting the repair type object with name." + name, ex);
-            return null;
+            return Collections.emptyList();
         }
     }
 
-    @ResponseBody
     @RequestMapping(value = "/getById", method = RequestMethod.GET)
-    public RepairType getById(@RequestParam("id") Long id)
+    public RepairType getById(@RequestParam(value = "id", required = false) Long id)
     {
         if (id == null)
         {
@@ -77,13 +83,14 @@ public class RepairTypeResource
         }
     }
 
-    @ResponseBody
     @RequestMapping(value = "/create", method = RequestMethod.GET)
-    public String create(@RequestParam("name") String name)
+    public String create(@RequestParam("name") String name,
+                         final RedirectAttributes redirectAttributes)
     {
-        if (name == null)
+        if (name == null || name.trim().isEmpty())
         {
-            return "Name of the repair type object wasn't found.";
+            redirectAttributes.addFlashAttribute("error", "The name of the repair type object wasn't found.");
+            return "redirect:" + getRedirectRepairTypesPage();
         }
 
         try
@@ -91,41 +98,84 @@ public class RepairTypeResource
             RepairType repairType = new RepairType();
             repairType.setName(name);
             repairTypeRepository.save(repairType);
-            return "The repair type object " + name + " was added in data base.";
+            redirectAttributes.addFlashAttribute("success", "The repair type " + name + " was added in data base.");
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during creating new the repair type.", ex);
-            return "Error: the repair type wasn't created.";
+            redirectAttributes.addFlashAttribute("error", "The the repair type object wasn't created.");
         }
+        return "redirect:" + getRedirectRepairTypesPage();
     }
 
-    @ResponseBody
     @RequestMapping(value = "/remove", method = RequestMethod.GET)
-    public String delete(@RequestParam("id") Long id)
+    public String delete(@RequestParam("repairTypesIds") String[] repairTypesIds,
+                         final RedirectAttributes redirectAttributes)
     {
-        if (id == null)
+        if (repairTypesIds == null || repairTypesIds.length == 0)
         {
-            return "The repair type object id wasn't found";
+            redirectAttributes.addFlashAttribute("warning", "The repair type objects for remove wasn't found, please select " +
+                    "interesting you repair types for remove by a checkbox.");
+            return "redirect:" + getRedirectRepairTypesPage();
         }
 
         try
         {
-            RepairType repairType = getById(id);
-
-            if (repairType == null)
+            for (String id : repairTypesIds)
             {
-                return "The repair type object with id " + id + " wasn't found";
-            }
+                RepairType repairType = repairTypeRepository.getById(Long.parseLong(id));
 
-            repairTypeRepository.delete(repairType);
-            return "The repair type " + repairType.getName() + " was deleted";
+                if (repairType == null)
+                {
+                    return "The repair type object with id " + id + " wasn't found";
+                }
+
+                repairTypeRepository.delete(repairType);
+            }
+            redirectAttributes.addFlashAttribute("success", "The repair type object(s) with ids: " + Arrays.toString(repairTypesIds) + " were deleted.");
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during removing the repair type object.", ex);
-            return "Error: the repair type object wasn't removed.";
+            redirectAttributes.addFlashAttribute("error", "An error occurred during removing the repair type object(s).");
+        }
+        return "redirect:" + getRedirectRepairTypesPage();
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam(value = "id", required = false) Long id,
+                         @RequestParam(value = "name", required = false) String name,
+                         final RedirectAttributes redirectAttributes)
+    {
+        if (id == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "Id of the repair type wasn't found.");
+            return "redirect:" + getRedirectRepairTypesPage();
         }
 
+        if (name == null || name.trim().isEmpty())
+        {
+            redirectAttributes.addFlashAttribute("warning", "Name of the repair type with id" + id + "wasn't found.");
+            return "redirect:" + getRedirectRepairTypesPage();
+        }
+
+        RepairType repairType = repairTypeRepository.getById(id);
+
+        if (repairType == null)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The repair type with id" + id + "wasn't found.");
+            return "redirect:" + getRedirectRepairTypesPage();
+        }
+
+        repairType.setName(name);
+        repairTypeRepository.save(repairType);
+
+        redirectAttributes.addFlashAttribute("success", "The repair type with id" + id + " was changed.");
+        return "redirect:" + getRedirectRepairTypesPage();
+    }
+
+    private String getRedirectRepairTypesPage()
+    {
+        return "/repair-types";
     }
 }

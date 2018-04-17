@@ -26,6 +26,14 @@ var editCategory = function (id, name) {
     $("#editedCategoryName").val(name);
 };
 
+var editEquipment = function(id, name, categoryId)
+{
+    $("#editEquipmentId").val(id);
+    $("#editEquipmentNameInput").val(name);
+    var categories_select2 = $("#editCategoriesList");
+    categories_select2.val(categoryId).trigger('change');
+};
+
 /*
 var removeCategories = function () {
     var selectedCheckBoxes = $('input.mainCheckboxClass:checked')
