@@ -1,15 +1,8 @@
-package com.ssau.repair.project.repair_project.rest.resources;
+package com.ssau.repair.project.repair_project.rest;
 
-import com.ssau.repair.project.repair_project.entities.Equipment;
-import com.ssau.repair.project.repair_project.entities.MaintenanceSchedule;
-import com.ssau.repair.project.repair_project.entities.RepairType;
-import com.ssau.repair.project.repair_project.entities.Worker;
-import com.ssau.repair.project.repair_project.repositories.EquipmentRepository;
-import com.ssau.repair.project.repair_project.repositories.MaintenanceScheduleRepository;
-import com.ssau.repair.project.repair_project.repositories.RepairTypeRepository;
-import com.ssau.repair.project.repair_project.repositories.WorkerRepository;
+import com.ssau.repair.project.repair_project.entities.*;
+import com.ssau.repair.project.repair_project.repositories.*;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,31 +12,30 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/maintenance-schedule")
-public class MaintenanceScheduleResource
+@RequestMapping("/main-schedule")
+public class MainSchedule
 {
-    private static final Logger LOG = Logger.getLogger(MaintenanceScheduleResource.class);
+    private static final Logger LOG = Logger.getLogger(MainSchedule.class);
 
     private final MaintenanceScheduleRepository maintenanceScheduleRepository;
     private final WorkerRepository workerRepository;
     private final EquipmentRepository equipmentRepository;
     private final RepairTypeRepository repairTypeRepository;
+    private final RepairStandardRepository repairStandardRepository;
+    private final RepairHistoryRepository repairHistoryRepository;
 
-    @Autowired
-    public MaintenanceScheduleResource(MaintenanceScheduleRepository maintenanceScheduleRepository,
-                                       WorkerRepository workerRepository, EquipmentRepository equipmentRepository,
-                                       RepairTypeRepository repairTypeRepository)
+    public MainSchedule(MaintenanceScheduleRepository maintenanceScheduleRepository, WorkerRepository workerRepository, EquipmentRepository equipmentRepository, RepairTypeRepository repairTypeRepository, RepairStandardRepository repairStandardRepository, RepairHistoryRepository repairHistoryRepository)
     {
         this.maintenanceScheduleRepository = maintenanceScheduleRepository;
         this.equipmentRepository = equipmentRepository;
         this.repairTypeRepository = repairTypeRepository;
         this.workerRepository = workerRepository;
+        this.repairStandardRepository = repairStandardRepository;
+        this.repairHistoryRepository = repairHistoryRepository;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -55,6 +47,7 @@ public class MaintenanceScheduleResource
             model.addAttribute("equipments", equipmentRepository.findAll());
             model.addAttribute("repairTypes", repairTypeRepository.findAll());
             model.addAttribute("workers", workerRepository.findAll());
+            model.addAttribute("repairStandards", repairStandardRepository.findAll());
         }
         catch (Exception ex)
         {
@@ -62,7 +55,7 @@ public class MaintenanceScheduleResource
             model.addAttribute("maintenanceSchedule", Collections.emptyList());
             model.addAttribute("error", "An error occurred during getting all  maintenance schedules objects.");
         }
-        return "admin_functions/data_base/maintenance-schedule";
+        return "schedules/main-schedule";
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -76,31 +69,31 @@ public class MaintenanceScheduleResource
         if (equipmentId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The equipment id of the maintenance schedule object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (repairTypeId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The repair type id of the maintenance schedule object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (laborIntensity == null || laborIntensity <= 0)
         {
             redirectAttributes.addFlashAttribute("warning", "The incorrect value of labor intensity for the maintenance schedule.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (workersIds == null || workersIds.length == 0)
         {
             redirectAttributes.addFlashAttribute("warning", "The worker object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (date == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The date for the maintenance schedule wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         try
@@ -109,41 +102,27 @@ public class MaintenanceScheduleResource
             if (equipment == null)
             {
                 redirectAttributes.addFlashAttribute("warning", "The equipment object wasn't found.");
-                return getRedirectMaintenanceSchedulesPage();
+                return getRedirectMainSchedulesPage();
             }
 
             RepairType repairType = repairTypeRepository.getById(repairTypeId);
             if (repairType == null)
             {
                 redirectAttributes.addFlashAttribute("warning", "The repair type object wasn't found.");
-                return getRedirectMaintenanceSchedulesPage();
+                return getRedirectMainSchedulesPage();
             }
 
-
-            Set<Worker> workers = new HashSet<>();
-            for (String id : workersIds)
-            {
-                if (id == null)
-                {
-                    continue;
-                }
-
-                Worker worker = workerRepository.getById(Long.parseLong(id));
-
-                if (worker == null)
-                {
-                    continue;
-                }
-
-                workers.add(worker);
-            }
+            Set<Worker> workers = Arrays.stream(workersIds)
+                    .filter(Objects::nonNull)
+                    .map(id -> workerRepository.getById(Long.parseLong(id)))
+                    .filter(Objects::nonNull).collect(Collectors.toSet());
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
             LocalDate localDate = LocalDate.parse(date, formatter);
             if (localDate == null)
             {
                 redirectAttributes.addFlashAttribute("warning", "The date for the maintenance schedule wasn't found.");
-                return getRedirectMaintenanceSchedulesPage();
+                return getRedirectMainSchedulesPage();
             }
 
             MaintenanceSchedule maintenanceSchedule = new MaintenanceSchedule(equipment, repairType, workers, laborIntensity, localDate);
@@ -155,23 +134,23 @@ public class MaintenanceScheduleResource
             LOG.error("An error occurred during creating new the maintenance schedule.", ex);
             redirectAttributes.addFlashAttribute("error", "The the maintenance schedule object wasn't created.");
         }
-        return getRedirectMaintenanceSchedulesPage();
+        return getRedirectMainSchedulesPage();
     }
 
-    @RequestMapping(value = "/remove", method = RequestMethod.POST)
-    public String delete(@RequestParam(value = "maintenanceSchedulesIds", required = false) String[] maintenanceSchedulesIds,
+    @RequestMapping(value = "/execute", method = RequestMethod.POST)
+    public String delete(@RequestParam(value = "mainSchedulesIds", required = false) String[] mainSchedulesIds,
                          final RedirectAttributes redirectAttributes)
     {
-        if (maintenanceSchedulesIds == null || maintenanceSchedulesIds.length == 0)
+        if (mainSchedulesIds == null || mainSchedulesIds.length == 0)
         {
-            redirectAttributes.addFlashAttribute("warning", "The schedules objects for remove wasn't found, please select " +
+            redirectAttributes.addFlashAttribute("warning", "The schedules objects for execute wasn't found, please select " +
                     "interesting you schedules objects for remove by a checkbox.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         try
         {
-            for (String id : maintenanceSchedulesIds)
+            for (String id : mainSchedulesIds)
             {
                 MaintenanceSchedule maintenanceSchedule = maintenanceScheduleRepository.getById(Long.parseLong(id));
 
@@ -180,20 +159,23 @@ public class MaintenanceScheduleResource
                     continue;
                 }
 
+                RepairHistory repairHistory = new RepairHistory(maintenanceSchedule);
+
+                repairHistoryRepository.save(repairHistory);
                 maintenanceScheduleRepository.delete(maintenanceSchedule);
             }
-            redirectAttributes.addFlashAttribute("success", "The maintenance schedule object(s) with ids: " + Arrays.toString(maintenanceSchedulesIds) + " were deleted.");
+            redirectAttributes.addFlashAttribute("success", "The maintenance schedule object(s) with ids: " + Arrays.toString(mainSchedulesIds) + " were execute and sent to repair history.");
         }
         catch (Exception ex)
         {
             LOG.error("An error occurred during removing the maintenance schedule object.", ex);
             redirectAttributes.addFlashAttribute("error", "An error occurred during removing the maintenance schedule object(s).");
         }
-        return getRedirectMaintenanceSchedulesPage();
+        return getRedirectMainSchedulesPage();
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public String update(@RequestParam(value = "id", required = false) Long id,
+    public String update(@RequestParam(value = "editMainScheduleId", required = false) Long editMainScheduleId,
                          @RequestParam("equipmentId") Long equipmentId,
                          @RequestParam("repairTypeId") Long repairTypeId,
                          @RequestParam("laborIntensity") Integer laborIntensity,
@@ -201,48 +183,48 @@ public class MaintenanceScheduleResource
                          @RequestParam("date") String date,
                          final RedirectAttributes redirectAttributes)
     {
-        if (id == null)
+        if (editMainScheduleId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "Id of the maintenance schedule wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (equipmentId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The equipment id of the maintenance schedule object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (repairTypeId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The repair type id of the maintenance schedule object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (laborIntensity == null || laborIntensity <= 0)
         {
             redirectAttributes.addFlashAttribute("warning", "The incorrect value of labor intensity for the maintenance schedule.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (workersIds == null || workersIds.length == 0)
         {
             redirectAttributes.addFlashAttribute("warning", "The worker object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         if (date == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The date for the maintenance schedule wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
-        MaintenanceSchedule maintenanceSchedule = maintenanceScheduleRepository.getById(id);
+        MaintenanceSchedule maintenanceSchedule = maintenanceScheduleRepository.getById(editMainScheduleId);
 
         if (maintenanceSchedule == null)
         {
-            redirectAttributes.addFlashAttribute("warning", "The maintenance schedule with id" + id + "wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            redirectAttributes.addFlashAttribute("warning", "The maintenance schedule with id" + editMainScheduleId + "wasn't found.");
+            return getRedirectMainSchedulesPage();
         }
 
         RepairType repairType = repairTypeRepository.getById(repairTypeId);
@@ -250,33 +232,20 @@ public class MaintenanceScheduleResource
         if (repairType == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The repair type with id" + repairTypeId + "wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         Equipment equipment = equipmentRepository.getById(equipmentId);
         if (equipment == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The equipment object wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         Set<Worker> workers = maintenanceSchedule.getWorkers();
-        for (String workerId : workersIds)
-        {
-            if (workerId == null)
-            {
-                continue;
-            }
-
-            Worker worker = workerRepository.getById(Long.parseLong(workerId));
-
-            if (worker == null || workers.contains(worker))
-            {
-                continue;
-            }
-
-            workers.add(worker);
-        }
+        Arrays.stream(workersIds).filter(Objects::nonNull)
+                .map(workerId -> workerRepository.getById(Long.parseLong(workerId)))
+                .filter(worker -> worker != null && !workers.contains(worker)).forEach(workers::add);
 
         maintenanceSchedule.setEquipment(equipment);
         maintenanceSchedule.setRepairType(repairType);
@@ -288,18 +257,18 @@ public class MaintenanceScheduleResource
         if (localDate == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The date for the maintenance schedule wasn't found.");
-            return getRedirectMaintenanceSchedulesPage();
+            return getRedirectMainSchedulesPage();
         }
 
         maintenanceSchedule.setDate(localDate);
 
         maintenanceScheduleRepository.save(maintenanceSchedule);
-        redirectAttributes.addFlashAttribute("success", "The qualification with id" + id + " was changed.");
-        return getRedirectMaintenanceSchedulesPage();
+        redirectAttributes.addFlashAttribute("success", "The maintenance schedule with id" + editMainScheduleId + " was changed.");
+        return getRedirectMainSchedulesPage();
     }
 
-    private String getRedirectMaintenanceSchedulesPage()
+    private String getRedirectMainSchedulesPage()
     {
-        return "redirect:/maintenance-schedule";
+        return "redirect:/main-schedule";
     }
 }

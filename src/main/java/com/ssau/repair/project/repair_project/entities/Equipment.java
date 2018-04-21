@@ -31,6 +31,12 @@ public class Equipment implements Serializable
     {
     }
 
+    public Equipment(String name, EquipmentCategory equipmentCategory)
+    {
+        this.name = name;
+        this.equipmentCategory = equipmentCategory;
+    }
+
     public Long getId()
     {
         return id;

@@ -6,9 +6,8 @@
 <div class="wrapper">
 
     <header th:replace="fragments/main-header :: header"></header>
-
     <!-- Left side column. contains the sidebar -->
-    <aside class="main-sidebar" xmlns:th="http://www.thymeleaf.org">
+    <aside class="main-sidebar">
         <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
             <ul class="sidebar-menu" data-widget="tree">
@@ -17,11 +16,11 @@
                     <a href="#">
                         <i class="fa fa-dashboard"></i> <span>Dashboards</span>
                         <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
+                          <i class="fa fa-angle-left pull-right"></i>
                         </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a th:href="@{/}"><i class="fa fa-circle-o"></i>Main Dashboard</a></li>
+                        <li><a th:href="@{/}"><i class="fa fa-circle-o"></i> Main Dashboard</a></li>
                     </ul>
                 </li>
                 <li><a th:href="@{/main-schedule}"><i class="fa fa-calendar"></i>Main Schedule</a></li>
@@ -35,14 +34,13 @@
 	            </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li class="active"><a th:href="@{/equipment-category}"> <i class="fa fa-circle-o"></i> <span>Equipment Category</span></a>
-                        </li>
+                        <li><a th:href="@{/equipment-category}"> <i class="fa fa-circle-o"></i> <span>Equipment Category</span></a></li>
                         <li><a th:href="@{/equipments}"> <i class="fa fa-circle-o"></i> <span>Equipments</span></a></li>
                         <li><a th:href="@{/repair-types}"> <i class="fa fa-circle-o"></i> <span>Repair Types</span></a></li>
                         <li><a th:href="@{/maintenance-schedule}"> <i class="fa fa-circle-o"></i> <span>Maintenance Schedule</span></a></li>
                         <li><a th:href="@{/repair-history}"> <i class="fa fa-circle-o"></i> <span>Repair History</span></a></li>
                         <li><a th:href="@{/repair-standards}"> <i class="fa fa-circle-o"></i> <span>Repair Standards</span></a></li>
-                        <li><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
+                        <li class="active"><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
                         <li><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
                     </ul>
                 </li>
@@ -50,20 +48,21 @@
         </section>
         <!-- /.sidebar -->
     </aside>
-    <!-- Content Wrapper. Contains page content -->
+
     <!-- =============================================== -->
+
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Category Equipments
+                Workers
             </h1>
             <ol class="breadcrumb">
                 <li><a th:href="@{/}"> Home</a></li>
-                <li><a href="#"> Adminitrator functions</a></li>
+                <li><a href="#"> Administrator functions</a></li>
                 <li><a href="#"> Data Base</a></li>
-                <li class="active"><a href="#"> Category Equipments</a></li>
+                <li class="active"><a href="#">Workers</a></li>
             </ol>
         </section>
 
@@ -93,13 +92,13 @@
                                 Add
                             </button>
                         </div>
-                        <form role="form" action="/equipment-category/remove" method="POST">
+                        <form role="form" action="/workers/remove" method="POST">
                             <div class="box-header col-xs-4">
                                 <button type="submit" class="btn btn-default pull-right">Remove</button>
                             </div>
                             <!-- /.box-header -->
                             <div class="box-body">
-                                <table id="category-equipments-table" class="table table-bordered table-hover">
+                                <table id="workers-table" class="table table-bordered table-hover">
                                     <thead>
                                     <tr>
                                         <th class="no-sort" width="1px">
@@ -109,21 +108,24 @@
                                         </th>
                                         <th>ID</th>
                                         <th>Name</th>
+                                        <th>Qualifications</th>
                                         <th class="no-sort">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:id="'category-row-'+${iterationStatus.count}"
-                                        data-th-each="category,iterationStatus : ${equipmentsCategories}">
+                                    <tr th:id="'worker-row-'+${iterationStatus.count}"
+                                        data-th-each="worker,iterationStatus : ${workers}">
                                         <td>
                                             <label>
-                                                <input name="categoryIds" th:value="${category.id}" th:id="'equipment-category-check-'+${category.id}"
+                                                <input name="workersIds" th:value="${worker.id}" th:id="'worker-check-'+${worker.id}"
                                                        type="checkbox" class="minimal mainCheckboxClass">
                                             </label>
                                         </td>
-                                        <td class="id-column" data-th-text="${category.id}">...</td>
-                                        <td class="name-column" data-th-text="${category.name}">...</td>
-                                        <td><a th:onclick="'editCategory(\'' + ${category.id} + '\', \'' + ${category.name} + '\');'"
+                                        <td class="id-column" data-th-text="${worker.id}">...</td>
+                                        <td class="name-column" data-th-text="${worker.name}">...</td>
+                                        <td class="qualifications-column" data-th-text="${worker.qualificationsNames}">...</td>
+                                        <td><a th:onclick="'editWorker(\'' + ${worker.id} + '\', \'' + ${worker.name} + '\', \''
+                                        + ${worker.qualificationsIds} + '\');'"
                                                style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
                                     </tr>
                                     </tbody>
@@ -144,7 +146,11 @@
     <div th:replace="fragments/footer :: footer"></div>
 </div>
 <script>
-    initTable('#category-equipments-table');
+    $(function () {
+        initTable('#workers-table');
+        //Initialize Select2 Elements
+        $('.select2').select2();
+    });
 </script>
 
 </body>
@@ -156,13 +162,20 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Add New Category</h4>
+                <h4 class="modal-title">Add New Worker</h4>
             </div>
-            <form role="form" action="/equipment-category/create" method="POST">
+            <form role="form" action="/workers/create" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="categoryNameInput">Name</label>
-                        <input name="name" type="text" class="form-control" id="categoryNameInput" placeholder="Name" required>
+                        <label for="workerName">Name</label>
+                        <input name="name" type="text" class="form-control" id="workerName" placeholder="Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="qualificationsList">Qualifications</label>
+                        <select name="qualificationsIds" id="qualificationsList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                            <option data-th-each="qualification : ${qualifications}" data-th-value="${qualification.id}"
+                                    data-th-text="${qualification.name}"></option>
+                        </select>
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -183,14 +196,21 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Edit Category</h4>
+                <h4 class="modal-title">Edit Worker</h4>
             </div>
-            <form role="form" action="/equipment-category/update" method="POST">
+            <form role="form" action="/workers/update" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="categoryNameInput">Name</label>
-                        <input name="id" type="hidden" id="editedCategoryId">
-                        <input name="name" type="text" class="form-control" id="editedCategoryName" placeholder="Name" required>
+                        <input name="id" type="hidden" id="editWorkerId">
+                        <label for="editWorkerName">Name</label>
+                        <input name="name" type="text" class="form-control" id="editWorkerName" placeholder="Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editQualificationsList">Qualifications</label>
+                        <select name="qualificationsIds" id="editQualificationsList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                            <option data-th-each="qualification : ${qualifications}" data-th-value="${qualification.id}"
+                                    data-th-text="${qualification.name}"></option>
+                        </select>
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -204,4 +224,3 @@
     </div>
     <!-- /.modal-dialog -->
 </div>
-

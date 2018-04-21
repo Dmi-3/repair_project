@@ -16,13 +16,14 @@
                     <a href="#">
                         <i class="fa fa-dashboard"></i> <span>Dashboards</span>
                         <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
                     </a>
                     <ul class="treeview-menu">
                         <li><a th:href="@{/}"><i class="fa fa-circle-o"></i> Main Dashboard</a></li>
                     </ul>
                 </li>
+                <li><a th:href="@{/main-schedule}"><i class="fa fa-calendar"></i>Main Schedule</a></li>
                 <li class="header">ADMINISTRATOR FUNCTIONS</li>
                 <li class="active treeview">
                     <a href="#">
@@ -39,6 +40,8 @@
                         <li><a th:href="@{/maintenance-schedule}"> <i class="fa fa-circle-o"></i> <span>Maintenance Schedule</span></a></li>
                         <li><a th:href="@{/repair-history}"> <i class="fa fa-circle-o"></i> <span>Repair History</span></a></li>
                         <li><a th:href="@{/repair-standards}"> <i class="fa fa-circle-o"></i> <span>Repair Standards</span></a></li>
+                        <li><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
+                        <li><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
                     </ul>
                 </li>
             </ul>
@@ -84,7 +87,6 @@
 
                     <div class="box">
                         <div class="box-header col-xs-8">
-                            <h3 class="box-title">Equipments </h3>
                             <button class="btn btn-default" data-toggle="modal" data-target="#modal-add">
                                 Add
                             </button>

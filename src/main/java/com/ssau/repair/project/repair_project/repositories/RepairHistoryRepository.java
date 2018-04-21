@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RepairHistoryRepository extends JpaRepository<RepairHistory, Long>
 {
+    RepairHistory getById(Long id);
 }

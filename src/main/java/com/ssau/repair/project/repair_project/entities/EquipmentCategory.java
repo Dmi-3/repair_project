@@ -20,11 +20,16 @@ public class EquipmentCategory implements Serializable
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "equipmentCategory")
     private Set<Equipment> equipments;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "repairStandards")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "equipmentCategory")
     private Set<RepairStandard> repairStandards;
 
     public EquipmentCategory()
     {
+    }
+
+    public EquipmentCategory(String name)
+    {
+        this.name = name;
     }
 
     public Long getId()

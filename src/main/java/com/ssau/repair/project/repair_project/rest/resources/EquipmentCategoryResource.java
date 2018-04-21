@@ -91,13 +91,12 @@ public class EquipmentCategoryResource
         if (name == null || name.trim().isEmpty())
         {
             redirectAttributes.addFlashAttribute("warning", "The name of the equipment category object wasn't found.");
-            return "redirect:" + getRedirectCategoryPage();
+            return getRedirectCategoryPage();
         }
 
         try
         {
-            EquipmentCategory equipmentCategory = new EquipmentCategory();
-            equipmentCategory.setName(name);
+            EquipmentCategory equipmentCategory = new EquipmentCategory(name);
             equipmentCategoryRepository.save(equipmentCategory);
             redirectAttributes.addFlashAttribute("success", "The equipment category " + name + " was added in data base.");
         }
@@ -106,7 +105,7 @@ public class EquipmentCategoryResource
             LOG.error("An error occurred during creating the equipment category object.", ex);
             redirectAttributes.addFlashAttribute("error", "The equipment category object wasn't created.");
         }
-        return "redirect:" + getRedirectCategoryPage();
+        return getRedirectCategoryPage();
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
@@ -117,7 +116,7 @@ public class EquipmentCategoryResource
         {
             redirectAttributes.addFlashAttribute("warning", "The equipments categories objects for remove wasn't found, please select " +
                     "interesting you categories for remove by a checkbox.");
-            return "redirect:" + getRedirectCategoryPage();
+            return getRedirectCategoryPage();
         }
 
         try
@@ -140,7 +139,7 @@ public class EquipmentCategoryResource
             redirectAttributes.addFlashAttribute("error", "An error occurred during removing the equipment category object(s).");
         }
 
-        return "redirect:" + getRedirectCategoryPage();
+        return getRedirectCategoryPage();
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -180,11 +179,11 @@ public class EquipmentCategoryResource
             LOG.error("An error occurred during updating the equipment category object.", ex);
             redirectAttributes.addFlashAttribute("error", "An error occurred during updating the equipment category object.");
         }
-        return "redirect:" + getRedirectCategoryPage();
+        return getRedirectCategoryPage();
     }
 
     private String getRedirectCategoryPage()
     {
-        return "/equipment-category";
+        return "redirect:/equipment-category";
     }
 }

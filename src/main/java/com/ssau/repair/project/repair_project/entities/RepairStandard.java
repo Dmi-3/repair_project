@@ -29,6 +29,15 @@ public class RepairStandard implements Serializable
 
     public RepairStandard()
     {
+
+    }
+
+    public RepairStandard(String name, EquipmentCategory equipmentCategory, RepairType repairType, Integer laborIntensity)
+    {
+        this.name = name;
+        this.equipmentCategory = equipmentCategory;
+        this.repairType = repairType;
+        this.laborIntensity = laborIntensity;
     }
 
     public Long getId()

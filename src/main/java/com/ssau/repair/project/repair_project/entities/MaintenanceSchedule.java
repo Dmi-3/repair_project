@@ -2,7 +2,9 @@ package com.ssau.repair.project.repair_project.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "Maintenance_schedule")
@@ -18,16 +20,33 @@ public class MaintenanceSchedule implements Serializable
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "repair_type_id")
     private RepairType repairType;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "repair_standard_id")
-    private RepairStandard repairStandard;
+    @ManyToMany
+    @JoinColumn(name = "workers_ids")
+    private Set<Worker> workers;
+
+    @Column(name = "Labor_intensity")
+    private Integer laborIntensity;
 
     @Column(name = "date")
-    private LocalDateTime date;
+    private LocalDate date;
+
+    public MaintenanceSchedule()
+    {
+
+    }
+
+    public MaintenanceSchedule(Equipment equipment, RepairType repairType, Set<Worker> workers, Integer laborIntensity, LocalDate date)
+    {
+        this.equipment = equipment;
+        this.repairType = repairType;
+        this.workers = workers;
+        this.laborIntensity = laborIntensity;
+        this.date = date;
+    }
 
     public Long getId()
     {
@@ -54,23 +73,44 @@ public class MaintenanceSchedule implements Serializable
         this.repairType = repairType;
     }
 
-    public LocalDateTime getDate()
+
+    public Set<Worker> getWorkers()
+    {
+        return workers;
+    }
+
+    public void setWorkers(Set<Worker> workers)
+    {
+        this.workers = workers;
+    }
+
+    public Integer getLaborIntensity()
+    {
+        return laborIntensity;
+    }
+
+    public void setLaborIntensity(Integer laborIntensity)
+    {
+        this.laborIntensity = laborIntensity;
+    }
+
+    public LocalDate getDate()
     {
         return date;
     }
 
-    public void setDate(LocalDateTime date)
+    public void setDate(LocalDate date)
     {
         this.date = date;
     }
 
-    public RepairStandard getRepairStandard()
+    public Set<Long> getWorkersIds()
     {
-        return repairStandard;
+        return getWorkers().stream().map(Worker::getId).collect(Collectors.toSet());
     }
 
-    public void setRepairStandard(RepairStandard repairStandard)
+    public Set<String> getWorkersNames()
     {
-        this.repairStandard = repairStandard;
+        return getWorkers().stream().map(Worker::getName).collect(Collectors.toSet());
     }
 }

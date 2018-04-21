@@ -95,14 +95,14 @@ public class EquipmentResource
     {
         if (name == null || name.trim().isEmpty())
         {
-            redirectAttributes.addFlashAttribute("error", "The name of the equipment object wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            redirectAttributes.addFlashAttribute("warning", "The name of the equipment object wasn't found.");
+            return getRedirectEquipmentsPage();
         }
 
         if (categoryId == null)
         {
-            redirectAttributes.addFlashAttribute("error", "The equipment category object id wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            redirectAttributes.addFlashAttribute("warning", "The equipment category object id wasn't found.");
+            return getRedirectEquipmentsPage();
         }
 
         try
@@ -112,12 +112,10 @@ public class EquipmentResource
             if (equipmentCategory == null)
             {
                 redirectAttributes.addFlashAttribute("warning", "Id of the edited category wasn't found.");
-                return "redirect:" + getRedirectEquipmentsPage();
+                return getRedirectEquipmentsPage();
             }
 
-            Equipment equipment = new Equipment();
-            equipment.setName(name);
-            equipment.setEquipmentCategory(equipmentCategory);
+            Equipment equipment = new Equipment(name, equipmentCategory);
             equipmentRepository.save(equipment);
             redirectAttributes.addFlashAttribute("success", "The equipment object " + name + " was added in data base.");
         }
@@ -126,7 +124,7 @@ public class EquipmentResource
             LOG.error("An error occurred during creating the equipment object.", ex);
             redirectAttributes.addFlashAttribute("error", "The equipment object wasn't created.");
         }
-        return "redirect:" + getRedirectEquipmentsPage();
+        return getRedirectEquipmentsPage();
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
@@ -137,7 +135,7 @@ public class EquipmentResource
         {
             redirectAttributes.addFlashAttribute("warning", "The equipments objects for remove wasn't found, please select " +
                     "interesting you equipments for remove by a checkbox.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            return getRedirectEquipmentsPage();
         }
 
         try
@@ -161,7 +159,7 @@ public class EquipmentResource
             LOG.error("An error occurred during removing the equipment object(s).", ex);
             redirectAttributes.addFlashAttribute("error", "An error occurred during removing the equipment object(s).");
         }
-        return "redirect:" + getRedirectEquipmentsPage();
+        return getRedirectEquipmentsPage();
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -173,19 +171,19 @@ public class EquipmentResource
         if (id == null)
         {
             redirectAttributes.addFlashAttribute("warning", "Id of the edited equipment wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            return getRedirectEquipmentsPage();
         }
 
         if (name == null || name.trim().isEmpty())
         {
             redirectAttributes.addFlashAttribute("warning", "Name of the edited equipment with id" + id + "wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            return getRedirectEquipmentsPage();
         }
 
         if (categoryId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "Id of the edited category wasn't found.");
-            return "redirect:" + getRedirectEquipmentsPage();
+            return getRedirectEquipmentsPage();
         }
 
         try
@@ -195,7 +193,7 @@ public class EquipmentResource
             if (equipment == null)
             {
                 redirectAttributes.addFlashAttribute("warning", "The edited equipment with id" + id + "wasn't found.");
-                return "redirect:" + getRedirectEquipmentsPage();
+                return getRedirectEquipmentsPage();
             }
 
             EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(categoryId);
@@ -203,7 +201,7 @@ public class EquipmentResource
             if (equipmentCategory == null)
             {
                 redirectAttributes.addFlashAttribute("warning", "The edited category with id" + id + "wasn't found.");
-                return "redirect:" + getRedirectEquipmentsPage();
+                return getRedirectEquipmentsPage();
             }
 
             equipment.setName(name);
@@ -217,11 +215,11 @@ public class EquipmentResource
             LOG.error("An error occurred during updating the equipment object.", ex);
             redirectAttributes.addFlashAttribute("error", "An error occurred during updating the equipment object.");
         }
-        return "redirect:" + getRedirectEquipmentsPage();
+        return getRedirectEquipmentsPage();
     }
 
     private String getRedirectEquipmentsPage()
     {
-        return "/equipments";
+        return "redirect:/equipments";
     }
 }

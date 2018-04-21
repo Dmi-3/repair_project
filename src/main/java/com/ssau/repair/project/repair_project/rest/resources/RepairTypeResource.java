@@ -89,14 +89,14 @@ public class RepairTypeResource
     {
         if (name == null || name.trim().isEmpty())
         {
-            redirectAttributes.addFlashAttribute("error", "The name of the repair type object wasn't found.");
-            return "redirect:" + getRedirectRepairTypesPage();
+            redirectAttributes.addFlashAttribute("warning", "The name of the repair type object wasn't found.");
+            return getRedirectRepairTypesPage();
         }
 
         try
         {
-            RepairType repairType = new RepairType();
-            repairType.setName(name);
+            RepairType repairType = new RepairType(name);
+
             repairTypeRepository.save(repairType);
             redirectAttributes.addFlashAttribute("success", "The repair type " + name + " was added in data base.");
         }
@@ -105,7 +105,7 @@ public class RepairTypeResource
             LOG.error("An error occurred during creating new the repair type.", ex);
             redirectAttributes.addFlashAttribute("error", "The the repair type object wasn't created.");
         }
-        return "redirect:" + getRedirectRepairTypesPage();
+        return getRedirectRepairTypesPage();
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.POST)
@@ -116,7 +116,7 @@ public class RepairTypeResource
         {
             redirectAttributes.addFlashAttribute("warning", "The repair type objects for remove wasn't found, please select " +
                     "interesting you repair types for remove by a checkbox.");
-            return "redirect:" + getRedirectRepairTypesPage();
+            return getRedirectRepairTypesPage();
         }
 
         try
@@ -139,7 +139,7 @@ public class RepairTypeResource
             LOG.error("An error occurred during removing the repair type object.", ex);
             redirectAttributes.addFlashAttribute("error", "An error occurred during removing the repair type object(s).");
         }
-        return "redirect:" + getRedirectRepairTypesPage();
+        return getRedirectRepairTypesPage();
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -150,13 +150,13 @@ public class RepairTypeResource
         if (id == null)
         {
             redirectAttributes.addFlashAttribute("warning", "Id of the repair type wasn't found.");
-            return "redirect:" + getRedirectRepairTypesPage();
+            return getRedirectRepairTypesPage();
         }
 
         if (name == null || name.trim().isEmpty())
         {
             redirectAttributes.addFlashAttribute("warning", "Name of the repair type with id" + id + "wasn't found.");
-            return "redirect:" + getRedirectRepairTypesPage();
+            return getRedirectRepairTypesPage();
         }
 
         RepairType repairType = repairTypeRepository.getById(id);
@@ -164,18 +164,18 @@ public class RepairTypeResource
         if (repairType == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The repair type with id" + id + "wasn't found.");
-            return "redirect:" + getRedirectRepairTypesPage();
+            return getRedirectRepairTypesPage();
         }
 
         repairType.setName(name);
         repairTypeRepository.save(repairType);
 
         redirectAttributes.addFlashAttribute("success", "The repair type with id" + id + " was changed.");
-        return "redirect:" + getRedirectRepairTypesPage();
+        return getRedirectRepairTypesPage();
     }
 
     private String getRedirectRepairTypesPage()
     {
-        return "/repair-types";
+        return "redirect:/repair-types";
     }
 }

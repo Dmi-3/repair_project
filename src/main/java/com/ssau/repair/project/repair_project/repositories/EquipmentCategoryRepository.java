@@ -10,4 +10,5 @@ public interface EquipmentCategoryRepository extends JpaRepository<EquipmentCate
     List<EquipmentCategory> findByName(String name);
 
     EquipmentCategory getById(Long id);
+
 }

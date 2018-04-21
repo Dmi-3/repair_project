@@ -6,9 +6,8 @@
 <div class="wrapper">
 
     <header th:replace="fragments/main-header :: header"></header>
-
     <!-- Left side column. contains the sidebar -->
-    <aside class="main-sidebar" xmlns:th="http://www.thymeleaf.org">
+    <aside class="main-sidebar">
         <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
             <ul class="sidebar-menu" data-widget="tree">
@@ -17,16 +16,16 @@
                     <a href="#">
                         <i class="fa fa-dashboard"></i> <span>Dashboards</span>
                         <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
+                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a th:href="@{/}"><i class="fa fa-circle-o"></i>Main Dashboard</a></li>
+                        <li><a th:href="@{/}"><i class="fa fa-circle-o"></i> Main Dashboard</a></li>
                     </ul>
                 </li>
                 <li><a th:href="@{/main-schedule}"><i class="fa fa-calendar"></i>Main Schedule</a></li>
                 <li class="header">ADMINISTRATOR FUNCTIONS</li>
-                <li class="active treeview">
+                <li class="treeview">
                     <a href="#">
                         <i class="fa fa-laptop"></i>
                         <span>DATA BASE</span>
@@ -35,8 +34,7 @@
 	            </span>
                     </a>
                     <ul class="treeview-menu">
-                        <li class="active"><a th:href="@{/equipment-category}"> <i class="fa fa-circle-o"></i> <span>Equipment Category</span></a>
-                        </li>
+                        <li><a th:href="@{/equipment-category}"> <i class="fa fa-circle-o"></i>  <span>Equipment Category</span></a></li>
                         <li><a th:href="@{/equipments}"> <i class="fa fa-circle-o"></i> <span>Equipments</span></a></li>
                         <li><a th:href="@{/repair-types}"> <i class="fa fa-circle-o"></i> <span>Repair Types</span></a></li>
                         <li><a th:href="@{/maintenance-schedule}"> <i class="fa fa-circle-o"></i> <span>Maintenance Schedule</span></a></li>
@@ -50,20 +48,20 @@
         </section>
         <!-- /.sidebar -->
     </aside>
-    <!-- Content Wrapper. Contains page content -->
+
     <!-- =============================================== -->
+
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Category Equipments
+                Main Schedule
             </h1>
             <ol class="breadcrumb">
                 <li><a th:href="@{/}"> Home</a></li>
-                <li><a href="#"> Adminitrator functions</a></li>
-                <li><a href="#"> Data Base</a></li>
-                <li class="active"><a href="#"> Category Equipments</a></li>
+                <li><a href="#"> Main Navigation</a></li>
+                <li class="active"><a href="#">Main Schedule</a></li>
             </ol>
         </section>
 
@@ -93,13 +91,13 @@
                                 Add
                             </button>
                         </div>
-                        <form role="form" action="/equipment-category/remove" method="POST">
+                        <form role="form" action="/main-schedule/execute" method="POST">
                             <div class="box-header col-xs-4">
                                 <button type="submit" class="btn btn-default pull-right">Remove</button>
                             </div>
                             <!-- /.box-header -->
                             <div class="box-body">
-                                <table id="category-equipments-table" class="table table-bordered table-hover">
+                                <table id="main-schedule-table" class="table table-bordered table-hover">
                                     <thead>
                                     <tr>
                                         <th class="no-sort" width="1px">
@@ -108,22 +106,32 @@
                                             </label>
                                         </th>
                                         <th>ID</th>
-                                        <th>Name</th>
+                                        <th>Equipment</th>
+                                        <th>Repair Type</th>
+                                        <th>Labor intensity</th>
+                                        <th>Workers</th>
+                                        <th>Date</th>
                                         <th class="no-sort">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:id="'category-row-'+${iterationStatus.count}"
-                                        data-th-each="category,iterationStatus : ${equipmentsCategories}">
+                                    <tr th:id="'main-schedule-row-'+${iterationStatus.count}"
+                                        data-th-each="mainScheduleObject,iterationStatus : ${maintenanceSchedule}">
                                         <td>
                                             <label>
-                                                <input name="categoryIds" th:value="${category.id}" th:id="'equipment-category-check-'+${category.id}"
+                                                <input name="mainSchedulesIds" th:value="${mainScheduleObject.id}" th:id="'main-schedule-check-'+${mainScheduleObject.id}"
                                                        type="checkbox" class="minimal mainCheckboxClass">
                                             </label>
                                         </td>
-                                        <td class="id-column" data-th-text="${category.id}">...</td>
-                                        <td class="name-column" data-th-text="${category.name}">...</td>
-                                        <td><a th:onclick="'editCategory(\'' + ${category.id} + '\', \'' + ${category.name} + '\');'"
+                                        <td class="id-column" data-th-text="${mainScheduleObject.id}">...</td>
+                                        <td class="equipment-column" data-th-text="${mainScheduleObject.equipment.name}">...</td>
+                                        <td class="repair-type-column" data-th-text="${mainScheduleObject.repairType.name}">...</td>
+                                        <td class="labor-intensity-column" data-th-text="${mainScheduleObject.laborIntensity}">...</td>
+                                        <td class="workers-column" data-th-text="${mainScheduleObject.workersNames}">...</td>
+                                        <td class="date-column" data-th-text="${mainScheduleObject.date}">...</td>
+                                        <td><a th:onclick="'editMainSchedule(\'' + ${mainScheduleObject.id} + '\', \'' + ${mainScheduleObject.equipment.id} + '\', \''
+                                        + ${mainScheduleObject.repairType.id} + '\', \'' + ${mainScheduleObject.workersIds} + '\', \''
+                                        + ${mainScheduleObject.laborIntensity} + '\', \'' + ${mainScheduleObject.date} + '\');'"
                                                style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
                                     </tr>
                                     </tbody>
@@ -144,7 +152,18 @@
     <div th:replace="fragments/footer :: footer"></div>
 </div>
 <script>
-    initTable('#category-equipments-table');
+    $(function () {
+        initTable('#main-schedule-table');
+        //Initialize Select2 Elements
+        $('.select2').select2();
+        //Date picker
+        $('.datepicker').datepicker({
+            autoclose: true,
+            format: 'yyyy-mm-dd'
+        });
+
+        autoSetLaborIntensity();
+    });
 </script>
 
 </body>
@@ -156,13 +175,39 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Add New Category</h4>
+                <h4 class="modal-title">Add New Schedule Object</h4>
             </div>
-            <form role="form" action="/equipment-category/create" method="POST">
+            <form role="form" action="/main-schedule/create" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="categoryNameInput">Name</label>
-                        <input name="name" type="text" class="form-control" id="categoryNameInput" placeholder="Name" required>
+                        <label for="equipmentList">Equipment</label>
+                        <select name="equipmentId" id="equipmentList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="equipment : ${equipments}" data-th-value="${equipment.id}"
+                                    data-th-text="${equipment.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="repairTypesList">Repair Type</label>
+                        <select name="repairTypeId" id="repairTypesList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="repairType : ${repairTypes}" data-th-value="${repairType.id}"
+                                    data-th-text="${repairType.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="workersList">Workers</label>
+                        <select name="workersIds" id="workersList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                            <option data-th-each="worker : ${workers}" data-th-value="${worker.id}"
+                                    data-th-text="${worker.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="laborIntensity">Labor Intensity</label>
+                        <input name="laborIntensity" type="text" class="form-control" id="laborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input name="date" type="text" class="form-control datepicker" id="date">
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -183,14 +228,39 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Edit Category</h4>
+                <h4 class="modal-title">Edit Schedule</h4>
             </div>
-            <form role="form" action="/equipment-category/update" method="POST">
+            <form role="form" action="/main-schedule/update" method="POST">
                 <div class="modal-body">
+                    <input name="editMainScheduleId" type="hidden" id="editMainScheduleId">
                     <div class="form-group">
-                        <label for="categoryNameInput">Name</label>
-                        <input name="id" type="hidden" id="editedCategoryId">
-                        <input name="name" type="text" class="form-control" id="editedCategoryName" placeholder="Name" required>
+                        <label for="editEquipmentList">Equipment</label>
+                        <select name="equipmentId" id="editEquipmentList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="equipment : ${equipments}" data-th-value="${equipment.id}"
+                                    data-th-text="${equipment.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRepairTypesList">Repair Type</label>
+                        <select name="repairTypeId" id="editRepairTypesList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="repairType : ${repairTypes}" data-th-value="${repairType.id}"
+                                    data-th-text="${repairType.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editWorkersList">Workers</label>
+                        <select name="workersIds" id="editWorkersList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                            <option data-th-each="worker : ${workers}" data-th-value="${worker.id}"
+                                    data-th-text="${worker.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLaborIntensity">Labor Intensity</label>
+                        <input name="laborIntensity" type="text" class="form-control" id="editLaborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input name="date" type="text" class="form-control datepicker" id="editDate">
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -204,4 +274,3 @@
     </div>
     <!-- /.modal-dialog -->
 </div>
-

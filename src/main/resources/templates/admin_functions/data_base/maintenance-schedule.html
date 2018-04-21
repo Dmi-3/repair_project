@@ -23,6 +23,7 @@
             <li><a th:href="@{/}"><i class="fa fa-circle-o"></i> Main Dashboard</a></li>
           </ul>
         </li>
+        <li><a th:href="@{/main-schedule}"><i class="fa fa-calendar"></i>Main Schedule</a></li>
         <li class="header">ADMINISTRATOR FUNCTIONS</li>
         <li class="active treeview">
         	<a href="#">
@@ -39,6 +40,8 @@
                 <li class="active"><a th:href="@{/maintenance-schedule}"> <i class="fa fa-circle-o"></i> <span>Maintenance Schedule</span></a></li>
                 <li><a th:href="@{/repair-history}"> <i class="fa fa-circle-o"></i> <span>Repair History</span></a></li>
                 <li><a th:href="@{/repair-standards}"> <i class="fa fa-circle-o"></i> <span>Repair Standards</span></a></li>
+                <li><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
+                <li><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
             </ul>
    	 	</li>
       </ul>
@@ -64,25 +67,208 @@
     </section>
 
     <!-- Main content -->
-    <section class="content">
+      <section class="content">
+          <div th:if="${error} != null" class="alert alert-danger alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h4><i class="icon fa fa-danger"></i> Error!</h4>
+              <p data-th-text="${error}">...</p>
+          </div>
+          <div th:if="${warning} != null" class="alert alert-warning alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h4><i class="icon fa fa-warning"></i> Warning!</h4>
+              <p data-th-text="${warning}">...</p>
+          </div>
+          <div th:if="${success} != null" class="alert alert-success alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h4><i class="icon fa fa-check"></i> Success!</h4>
+              <p data-th-text="${success}">...</p>
+          </div>
+          <div class="row">
+              <div class="col-xs-12">
 
-    </section>
-    <!-- /.content -->
+                  <div class="box">
+                      <div class="box-header col-xs-8">
+                          <button class="btn btn-default" data-toggle="modal" data-target="#modal-add">
+                              Add
+                          </button>
+                      </div>
+                      <form role="form" action="/maintenance-schedule/remove" method="POST">
+                          <div class="box-header col-xs-4">
+                              <button type="submit" class="btn btn-default pull-right">Remove</button>
+                          </div>
+                          <!-- /.box-header -->
+                          <div class="box-body">
+                              <table id="maintenance-schedule-table" class="table table-bordered table-hover">
+                                  <thead>
+                                  <tr>
+                                      <th class="no-sort" width="1px">
+                                          <label>
+                                              <input id="mainCheckBox" type="checkbox" class="minimal">
+                                          </label>
+                                      </th>
+                                      <th>ID</th>
+                                      <th>Equipment</th>
+                                      <th>Repair Type</th>
+                                      <th>Labor intensity</th>
+                                      <th>Workers</th>
+                                      <th>Date</th>
+                                      <th class="no-sort">Action</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  <tr th:id="'maintenance-schedule-row-'+${iterationStatus.count}"
+                                      data-th-each="maintenanceScheduleObject,iterationStatus : ${maintenanceSchedule}">
+                                      <td>
+                                          <label>
+                                              <input name="maintenanceSchedulesIds" th:value="${maintenanceScheduleObject.id}" th:id="'maintenance-schedule-check-'+${maintenanceScheduleObject.id}"
+                                                     type="checkbox" class="minimal mainCheckboxClass">
+                                          </label>
+                                      </td>
+                                      <td class="id-column" data-th-text="${maintenanceScheduleObject.id}">...</td>
+                                      <td class="equipment-column" data-th-text="${maintenanceScheduleObject.equipment.name}">...</td>
+                                      <td class="repair-type-column" data-th-text="${maintenanceScheduleObject.repairType.name}">...</td>
+                                      <td class="labor-intensity-column" data-th-text="${maintenanceScheduleObject.laborIntensity}">...</td>
+                                      <td class="workers-column" data-th-text="${maintenanceScheduleObject.workersNames}">...</td>
+                                      <td class="date-column" data-th-text="${maintenanceScheduleObject.date}">...</td>
+                                      <td><a th:onclick="'editMaintenanceSchedule(\'' + ${maintenanceScheduleObject.id} + '\', \'' + ${maintenanceScheduleObject.equipment.id} + '\', \''
+                                        + ${maintenanceScheduleObject.repairType.id} + '\', \'' + ${maintenanceScheduleObject.workersIds} + '\', \''
+                                        + ${maintenanceScheduleObject.laborIntensity} + '\', \'' + ${maintenanceScheduleObject.date} + '\');'"
+                                             style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
+                                  </tr>
+                                  </tbody>
+                              </table>
+                          </div>
+                          <!-- /.box-body -->
+                      </form>
+                  </div>
+                  <!-- /.box -->
+              </div>
+              <!-- /.col -->
+          </div>
+          <!-- /.row -->
+      </section>
+      <!-- /.content -->
   </div>
     <!-- /.content-wrapper -->
     <div th:replace="fragments/footer :: footer"></div>
 </div>
 <script>
     $(function () {
-        $('#maintenance-schedule-table').DataTable({
-            'paging'      : true,
-            'lengthChange': true,
-            'searching'   : true,
-            'ordering'    : true,
-            'info'        : true,
-            'autoWidth'   : false
-        })
-    })
+        initTable('#maintenance-schedule-table');
+        //Initialize Select2 Elements
+        $('.select2').select2();
+        //Date picker
+        $('.datepicker').datepicker({
+            autoclose: true,
+            format: 'yyyy-mm-dd'
+        });
+    });
 </script>
+
 </body>
 </html>
+
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add New Schedule Object</h4>
+            </div>
+            <form role="form" action="/maintenance-schedule/create" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="equipmentList">Equipment</label>
+                        <select name="equipmentId" id="equipmentList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="equipment : ${equipments}" data-th-value="${equipment.id}"
+                                    data-th-text="${equipment.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="repairTypesList">Repair Type</label>
+                        <select name="repairTypeId" id="repairTypesList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="repairType : ${repairTypes}" data-th-value="${repairType.id}"
+                                    data-th-text="${repairType.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="workersList">Workers</label>
+                        <select name="workersIds" id="workersList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                            <option data-th-each="worker : ${workers}" data-th-value="${worker.id}"
+                                    data-th-text="${worker.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="laborIntensity">Labor Intensity</label>
+                        <input name="laborIntensity" type="text" class="form-control" id="laborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input name="date" type="text" class="form-control datepicker" id="date">
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-edit">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit Schedule</h4>
+            </div>
+            <form role="form" action="/maintenance-schedule/update" method="POST">
+                <div class="modal-body">
+                    <input name="id" type="hidden" id="editMaintenanceScheduleId">
+                    <div class="form-group">
+                        <label for="editEquipmentList">Equipment</label>
+                        <select name="equipmentId" id="editEquipmentList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="equipment : ${equipments}" data-th-value="${equipment.id}"
+                                    data-th-text="${equipment.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRepairTypesList">Repair Type</label>
+                        <select name="repairTypeId" id="editRepairTypesList" class="form-control select2" style="width: 100%;">
+                            <option data-th-each="repairType : ${repairTypes}" data-th-value="${repairType.id}"
+                                    data-th-text="${repairType.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editWorkersList">Workers</label>
+                        <select name="workersIds" id="editWorkersList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                            <option data-th-each="worker : ${workers}" data-th-value="${worker.id}"
+                                    data-th-text="${worker.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLaborIntensity">Labor Intensity</label>
+                        <input name="laborIntensity" type="text" class="form-control" id="editLaborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input name="date" type="text" class="form-control datepicker" id="editDate">
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary pull-right">Update</button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

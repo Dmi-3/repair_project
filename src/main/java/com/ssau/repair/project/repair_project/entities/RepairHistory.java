@@ -2,7 +2,7 @@ package com.ssau.repair.project.repair_project.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Repair_history")
@@ -18,15 +18,35 @@ public class RepairHistory implements Serializable
     @JoinColumn(name = "Equipment_id")
     private Equipment equipment;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Repair_type_id")
     private RepairType repairType;
 
+    @Column(name = "Equipment_downtime")
+    private Integer equipmentDowntime;
+
     @Column(name = "Date")
-    private LocalDateTime date;
+    private LocalDate date;
 
     public RepairHistory()
     {
+
+    }
+
+    public RepairHistory(Equipment equipment, RepairType repairType, Integer equipmentDowntime, LocalDate date)
+    {
+        this.equipment = equipment;
+        this.repairType = repairType;
+        this.equipmentDowntime = equipmentDowntime;
+        this.date = date;
+    }
+
+    public RepairHistory(MaintenanceSchedule maintenanceSchedule)
+    {
+        this.equipment = maintenanceSchedule.getEquipment();
+        this.repairType = maintenanceSchedule.getRepairType();
+        this.equipmentDowntime = maintenanceSchedule.getLaborIntensity();
+        this.date = maintenanceSchedule.getDate();
     }
 
     public Long getId()
@@ -54,14 +74,23 @@ public class RepairHistory implements Serializable
         this.repairType = repairType;
     }
 
-    public LocalDateTime getDate()
+    public LocalDate getDate()
     {
         return date;
     }
 
-    public void setDate(LocalDateTime date)
+    public void setDate(LocalDate date)
     {
         this.date = date;
     }
 
+    public Integer getEquipmentDowntime()
+    {
+        return equipmentDowntime;
+    }
+
+    public void setEquipmentDowntime(Integer equipmentDowntime)
+    {
+        this.equipmentDowntime = equipmentDowntime;
+    }
 }

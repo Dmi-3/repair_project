@@ -45,6 +45,88 @@ var editRepairStandard = function (id, name, categoryId, repairTypeId, laborInte
     $("#editCategoriesList").val(categoryId).trigger('change');
     $("#editRepairTypesList").val(repairTypeId).trigger('change');
     $("#editLaborIntensity").val(laborIntensity);
+};
+
+var editRepairHistory = function (id, equipmentId, repairTypeId, equipmentDowntime, date) {
+    $("#editRepairHistoryId").val(id);
+    $("#editEquipmentList").val(equipmentId).trigger('change');
+    $("#editRepairTypesList").val(repairTypeId).trigger('change');
+    $("#editEquipmentDowntime").val(equipmentDowntime);
+    $("#editDate").val(date);
+};
+
+var editQualification = function (id, name, repairTypeId) {
+    $("#editQualificationId").val(id);
+    $("#editQualificationName").val(name);
+    $("#editRepairTypesList").val(repairTypeId).trigger('change');
+};
+
+var editWorker = function (id, name, qualifications) {
+    $("#editWorkerId").val(id);
+    $("#editWorkerName").val(name);
+    $("#editQualificationsList").val($.parseJSON(qualifications)).trigger('change');
+};
+
+var editMaintenanceSchedule = function (id, equipmentId, repairTypeId, workersIds, laborIntensity, date) {
+
+    $("#editMaintenanceScheduleId").val(id);
+    $("#editEquipmentList").val(equipmentId).trigger('change');
+    $("#editRepairTypesList").val(repairTypeId).trigger('change');
+    $("#editWorkersList").val($.parseJSON(workersIds)).trigger('change');
+    $("#editLaborIntensity").val(laborIntensity);
+    $("#editDate").val(date);
+};
+
+var editMainSchedule = function (id, equipmentId, repairTypeId, workersIds, laborIntensity, date) {
+    var editRepairTypeList = $("#editRepairTypesList");
+    var editEquipmentsList = $("#editEquipmentList");
+
+    $("#editMainScheduleId").val(id);
+    editRepairTypeList.val(equipmentId).trigger('change');
+    editEquipmentsList.val(repairTypeId).trigger('change');
+    $("#editWorkersList").val($.parseJSON(workersIds)).trigger('change');
+    $("#editLaborIntensity").val(laborIntensity);
+    $("#editDate").val(date);
+
+    editRepairTypeList.change(function () {
+        sendStandardValueRequest(editRepairTypeList.val(), editEquipmentsList.val(), "#editLaborIntensity")
+    });
+
+    editEquipmentsList.change(function () {
+        sendStandardValueRequest(editRepairTypeList.val(), editEquipmentsList.val(),"#editLaborIntensity")
+    });
+};
+
+var autoSetLaborIntensity = function () {
+    var repairTypeList = $("#repairTypesList");
+    var equipmentsList = $("#equipmentList");
+
+    sendStandardValueRequest(repairTypeList.val(), equipmentsList.val(), "#laborIntensity");
+
+    repairTypeList.change(function () {
+        sendStandardValueRequest(repairTypeList.val(), equipmentsList.val(), "#laborIntensity")
+    });
+
+    equipmentsList.change(function () {
+        sendStandardValueRequest(repairTypeList.val(), equipmentsList.val(),"#laborIntensity")
+    });
+
+
+};
+
+var sendStandardValueRequest = function (equipmentId, repairTypeId, laborIntensityInputId) {
+    $.ajax({
+        type: "POST",
+        cache: false,
+        url: '/repair-standards/getLaborIntensity',
+        data: {
+            equipmentId: equipmentId,
+            repairTypeId: repairTypeId
+        },
+        success: function (response) {
+            $(laborIntensityInputId).val(response);
+        }
+    });
 }
 
 /*

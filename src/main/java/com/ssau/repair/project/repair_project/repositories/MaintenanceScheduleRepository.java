@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MaintenanceScheduleRepository extends JpaRepository<MaintenanceSchedule, Long>
 {
+    MaintenanceSchedule getById(Long id);
 }

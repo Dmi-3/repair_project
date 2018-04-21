@@ -23,8 +23,20 @@ public class RepairType implements Serializable
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "repairType")
     private Set<RepairHistory> repairHistory;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "repairType")
+    private Set<Qualification> qualifications;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "repairType")
+    private Set<MaintenanceSchedule> maintenanceSchedules;
+
     public RepairType()
     {
+
+    }
+
+    public RepairType(String name)
+    {
+        this.name = name;
     }
 
     public String getName()
@@ -60,5 +72,25 @@ public class RepairType implements Serializable
     public void setRepairHistory(Set<RepairHistory> repairHistory)
     {
         this.repairHistory = repairHistory;
+    }
+
+    public Set<Qualification> getQualifications()
+    {
+        return qualifications;
+    }
+
+    public void setQualifications(Set<Qualification> qualifications)
+    {
+        this.qualifications = qualifications;
+    }
+
+    public Set<MaintenanceSchedule> getMaintenanceSchedules()
+    {
+        return maintenanceSchedules;
+    }
+
+    public void setMaintenanceSchedules(Set<MaintenanceSchedule> maintenanceSchedules)
+    {
+        this.maintenanceSchedules = maintenanceSchedules;
     }
 }
