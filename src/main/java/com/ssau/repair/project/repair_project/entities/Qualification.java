@@ -20,7 +20,7 @@ public class Qualification
     @JoinColumn(name = "Repair_type_id")
     private RepairType repairType;
 
-    @OneToMany(mappedBy = "qualifications", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "qualifications")
     private Set<Worker> workers;
 
     public Qualification()

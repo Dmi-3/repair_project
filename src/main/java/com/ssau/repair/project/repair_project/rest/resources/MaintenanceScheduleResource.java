@@ -68,7 +68,7 @@ public class MaintenanceScheduleResource
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String create(@RequestParam("equipmentId") Long equipmentId,
                          @RequestParam("repairTypeId") Long repairTypeId,
-                         @RequestParam("workersIds") String[] workersIds,
+                         @RequestParam("workerId") Long workerId,
                          @RequestParam("laborIntensity") Integer laborIntensity,
                          @RequestParam("date") String date,
                          final RedirectAttributes redirectAttributes)
@@ -91,7 +91,7 @@ public class MaintenanceScheduleResource
             return getRedirectMaintenanceSchedulesPage();
         }
 
-        if (workersIds == null || workersIds.length == 0)
+        if (workerId == null )
         {
             redirectAttributes.addFlashAttribute("warning", "The worker object wasn't found.");
             return getRedirectMaintenanceSchedulesPage();
@@ -119,23 +119,12 @@ public class MaintenanceScheduleResource
                 return getRedirectMaintenanceSchedulesPage();
             }
 
+            Worker worker = workerRepository.getById(workerId);
 
-            Set<Worker> workers = new HashSet<>();
-            for (String id : workersIds)
+            if (worker == null)
             {
-                if (id == null)
-                {
-                    continue;
-                }
-
-                Worker worker = workerRepository.getById(Long.parseLong(id));
-
-                if (worker == null)
-                {
-                    continue;
-                }
-
-                workers.add(worker);
+                redirectAttributes.addFlashAttribute("warning", "The worker object wasn't found.");
+                return getRedirectMaintenanceSchedulesPage();
             }
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
@@ -146,7 +135,7 @@ public class MaintenanceScheduleResource
                 return getRedirectMaintenanceSchedulesPage();
             }
 
-            MaintenanceSchedule maintenanceSchedule = new MaintenanceSchedule(equipment, repairType, workers, laborIntensity, localDate);
+            MaintenanceSchedule maintenanceSchedule = new MaintenanceSchedule(equipment, repairType, worker, laborIntensity, localDate);
             maintenanceScheduleRepository.save(maintenanceSchedule);
             redirectAttributes.addFlashAttribute("success", "The maintenance schedule was added in data base.");
         }
@@ -197,7 +186,7 @@ public class MaintenanceScheduleResource
                          @RequestParam("equipmentId") Long equipmentId,
                          @RequestParam("repairTypeId") Long repairTypeId,
                          @RequestParam("laborIntensity") Integer laborIntensity,
-                         @RequestParam("workersIds") String[] workersIds,
+                         @RequestParam("workerId") Long workerId,
                          @RequestParam("date") String date,
                          final RedirectAttributes redirectAttributes)
     {
@@ -225,7 +214,7 @@ public class MaintenanceScheduleResource
             return getRedirectMaintenanceSchedulesPage();
         }
 
-        if (workersIds == null || workersIds.length == 0)
+        if (workerId == null)
         {
             redirectAttributes.addFlashAttribute("warning", "The worker object wasn't found.");
             return getRedirectMaintenanceSchedulesPage();
@@ -260,28 +249,18 @@ public class MaintenanceScheduleResource
             return getRedirectMaintenanceSchedulesPage();
         }
 
-        Set<Worker> workers = maintenanceSchedule.getWorkers();
-        for (String workerId : workersIds)
+        Worker worker = workerRepository.getById(workerId);
+
+        if (worker == null)
         {
-            if (workerId == null)
-            {
-                continue;
-            }
-
-            Worker worker = workerRepository.getById(Long.parseLong(workerId));
-
-            if (worker == null || workers.contains(worker))
-            {
-                continue;
-            }
-
-            workers.add(worker);
+            redirectAttributes.addFlashAttribute("warning", "The equipment object wasn't found.");
+            return getRedirectMaintenanceSchedulesPage();
         }
 
         maintenanceSchedule.setEquipment(equipment);
         maintenanceSchedule.setRepairType(repairType);
         maintenanceSchedule.setLaborIntensity(laborIntensity);
-        maintenanceSchedule.setWorkers(workers);
+        maintenanceSchedule.setWorker(worker);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
         LocalDate localDate = LocalDate.parse(date, formatter);

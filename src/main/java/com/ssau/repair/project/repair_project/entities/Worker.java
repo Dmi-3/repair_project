@@ -17,21 +17,28 @@ public class Worker
     @Column(name = "Name")
     private String name;
 
-    @ManyToMany
-    @Column(name = "Qualification")
-    private Set<Qualification> qualifications;
+    @Column(name = "TariffRate")
+    private Integer tariffRate;
 
     @ManyToMany
+    @JoinTable(name = "worker_qualifications", joinColumns = @JoinColumn(name = "worker_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "qualification_id", referencedColumnName = "id"))
+    private Set<Qualification> qualifications;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "worker")
     private Set<MaintenanceSchedule> maintenanceSchedules;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "worker")
+    private Set<WorkerSchedule> workerSchedules;
 
     public Worker()
     {
 
     }
 
-    public Worker(String name, Set<Qualification> qualifications)
+    public Worker(String name, Integer tariffRate,Set<Qualification> qualifications)
     {
         this.name = name;
+        this.tariffRate = tariffRate;
         this.qualifications = qualifications;
     }
 
@@ -78,5 +85,25 @@ public class Worker
     public Set<String> getQualificationsNames()
     {
         return getQualifications().stream().map(Qualification::getName).collect(Collectors.toSet());
+    }
+
+    public Integer getTariffRate()
+    {
+        return tariffRate;
+    }
+
+    public void setTariffRate(Integer tariffRate)
+    {
+        this.tariffRate = tariffRate;
+    }
+
+    public Set<WorkerSchedule> getWorkerSchedules()
+    {
+        return workerSchedules;
+    }
+
+    public void setWorkerSchedules(Set<WorkerSchedule> workerSchedules)
+    {
+        this.workerSchedules = workerSchedules;
     }
 }

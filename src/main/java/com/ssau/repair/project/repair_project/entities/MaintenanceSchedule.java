@@ -24,26 +24,29 @@ public class MaintenanceSchedule implements Serializable
     @JoinColumn(name = "repair_type_id")
     private RepairType repairType;
 
-    @ManyToMany
-    @JoinColumn(name = "workers_ids")
-    private Set<Worker> workers;
-
     @Column(name = "Labor_intensity")
     private Integer laborIntensity;
 
     @Column(name = "date")
     private LocalDate date;
 
+    @ManyToOne
+    @JoinColumn(name = "worker")
+    private Worker worker;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "maintenanceSchedule")
+    private Set<WorkerSchedule> workerSchedules;
+
     public MaintenanceSchedule()
     {
 
     }
 
-    public MaintenanceSchedule(Equipment equipment, RepairType repairType, Set<Worker> workers, Integer laborIntensity, LocalDate date)
+    public MaintenanceSchedule(Equipment equipment, RepairType repairType, Worker worker, Integer laborIntensity, LocalDate date)
     {
         this.equipment = equipment;
         this.repairType = repairType;
-        this.workers = workers;
+        this.worker = worker;
         this.laborIntensity = laborIntensity;
         this.date = date;
     }
@@ -73,17 +76,6 @@ public class MaintenanceSchedule implements Serializable
         this.repairType = repairType;
     }
 
-
-    public Set<Worker> getWorkers()
-    {
-        return workers;
-    }
-
-    public void setWorkers(Set<Worker> workers)
-    {
-        this.workers = workers;
-    }
-
     public Integer getLaborIntensity()
     {
         return laborIntensity;
@@ -104,7 +96,27 @@ public class MaintenanceSchedule implements Serializable
         this.date = date;
     }
 
-    public Set<Long> getWorkersIds()
+    public Worker getWorker()
+    {
+        return worker;
+    }
+
+    public void setWorker(Worker worker)
+    {
+        this.worker = worker;
+    }
+
+    public Set<WorkerSchedule> getWorkerSchedules()
+    {
+        return workerSchedules;
+    }
+
+    public void setWorkerSchedules(Set<WorkerSchedule> workerSchedules)
+    {
+        this.workerSchedules = workerSchedules;
+    }
+
+   /* public Set<Long> getWorkersIds()
     {
         return getWorkers().stream().map(Worker::getId).collect(Collectors.toSet());
     }
@@ -112,5 +124,7 @@ public class MaintenanceSchedule implements Serializable
     public Set<String> getWorkersNames()
     {
         return getWorkers().stream().map(Worker::getName).collect(Collectors.toSet());
-    }
+    }*/
+
+
 }

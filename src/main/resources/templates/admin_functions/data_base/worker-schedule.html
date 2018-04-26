@@ -41,8 +41,8 @@
                         <li><a th:href="@{/repair-history}"> <i class="fa fa-circle-o"></i> <span>Repair History</span></a></li>
                         <li><a th:href="@{/repair-standards}"> <i class="fa fa-circle-o"></i> <span>Repair Standards</span></a></li>
                         <li><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
-                        <li class="active"><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
-                        <li><a th:href="@{/worker-schedule}"> <i class="fa fa-circle-o"></i> <span>Worker Schedule</span></a></li>
+                        <li><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
+                        <li class="active"><a th:href="@{/worker-schedule}"> <i class="fa fa-circle-o"></i> <span>Worker Schedule</span></a></li>
                     </ul>
                 </li>
             </ul>
@@ -57,13 +57,13 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Qualifications
+                Worker Schedule
             </h1>
             <ol class="breadcrumb">
                 <li><a th:href="@{/}"> Home</a></li>
                 <li><a href="#"> Administrator functions</a></li>
                 <li><a href="#"> Data Base</a></li>
-                <li class="active"><a href="#">Qualifications</a></li>
+                <li class="active"><a href="#">Worker Schedule</a></li>
             </ol>
         </section>
 
@@ -93,13 +93,13 @@
                                 Add
                             </button>
                         </div>
-                        <form role="form" action="/qualifications/remove" method="POST">
+                        <form role="form" action="/worker-schedule/remove" method="POST">
                             <div class="box-header col-xs-4">
                                 <button type="submit" class="btn btn-default pull-right">Remove</button>
                             </div>
                             <!-- /.box-header -->
                             <div class="box-body">
-                                <table id="qualifications-table" class="table table-bordered table-hover">
+                                <table id="worker-schedule-table" class="table table-bordered table-hover">
                                     <thead>
                                     <tr>
                                         <th class="no-sort" width="1px">
@@ -108,26 +108,30 @@
                                             </label>
                                         </th>
                                         <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Repair Type</th>
+                                        <th>Worker</th>
+                                        <th>Date</th>
+                                        <th>Labor Intensity</th>
+                                        <th>Maintenance</th>
                                         <th class="no-sort">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:id="'qualification-row-'+${iterationStatus.count}"
-                                        data-th-each="qualification,iterationStatus : ${qualifications}">
+                                    <tr th:id="'worker-schedule-object-row-'+${iterationStatus.count}"
+                                        data-th-each="workerScheduleObject,iterationStatus : ${workerSchedule}">
                                         <td>
                                             <label>
-                                                <input name="qualificationsIds" th:value="${qualification.id}"
-                                                       th:id="'qualification-check-'+${qualification.id}"
+                                                <input name="workerScheduleIds" th:value="${workerScheduleObject.id}" th:id="'worker-schedule-check-'+${workerScheduleObject.id}"
                                                        type="checkbox" class="minimal mainCheckboxClass">
                                             </label>
                                         </td>
-                                        <td class="id-column" data-th-text="${qualification.id}">...</td>
-                                        <td class="name-column" data-th-text="${qualification.name}">...</td>
-                                        <td class="repair-type-column" data-th-text="${qualification.repairType.name}">...</td>
-                                        <td><a th:onclick="'editQualification(\'' + ${qualification.id} + '\', \'' + ${qualification.name} + '\', \''
-                                        + ${qualification.repairType.id} + '\');'"
+                                        <td class="id-column" data-th-text="${workerScheduleObject.id}">...</td>
+                                        <td class="worker-column" data-th-text="${workerScheduleObject.worker.name}">...</td>
+                                        <td class="date-column" data-th-text="${workerScheduleObject.date}">...</td>
+                                        <td class="labor-intensity-time-column" data-th-text="${workerScheduleObject.laborIntensity}">...</td>
+                                        <td class="maintenance-column" data-th-text="${workerScheduleObject.maintenanceSchedule.id}">...</td>
+                                        <td><a th:onclick="'editWorkerSchedule(\'' + ${workerScheduleObject.id} + '\', \'' + ${workerScheduleObject.worker.id}
+                                        + '\', \'' + ${workerScheduleObject.date} + '\', \''
+                                        + ${workerScheduleObject.laborIntensity} + '\', \'' + ${workerScheduleObject.maintenanceSchedule.id} + '\');'"
                                                style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
                                     </tr>
                                     </tbody>
@@ -149,7 +153,7 @@
 </div>
 <script>
     $(function () {
-        initTable('#qualifications-table');
+        initTable('#worker-schedule-table');
         //Initialize Select2 Elements
         $('.select2').select2();
     });
@@ -164,20 +168,25 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Add New Qualification</h4>
+                <h4 class="modal-title">Add New Worker Schedule</h4>
             </div>
-            <form role="form" action="/qualifications/create" method="POST">
+            <form role="form" action="/worker-schedule/create" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="qualificationName">Name</label>
-                        <input name="name" type="text" class="form-control" id="qualificationName" placeholder="Name" required>
+                        <label for="workerId">Worker</label>
+                        <input name="workerId" type="text" class="form-control" id="workerId" placeholder="Worker Id" required>
                     </div>
                     <div class="form-group">
-                        <label for="repairTypesList">Repair Type</label>
-                        <select name="repairTypeId" id="repairTypesList" class="form-control select2" style="width: 100%;">
-                            <option data-th-each="repairType : ${repairTypes}" data-th-value="${repairType.id}"
-                                    data-th-text="${repairType.name}"></option>
-                        </select>
+                        <label for="date">Date</label>
+                        <input name="date" type="text" class="form-control" id="date" placeholder="Date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="laborIntensity">Labor Intensity</label>
+                        <input name="laborIntensity" type="text" class="form-control" id="laborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="maintenanceScheduleId">Maintenance work</label>
+                        <input name="maintenaceScheduleId" type="text" class="form-control" id="maintenanceScheduleId" placeholder="Maintenance work" required>
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -198,21 +207,26 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Edit Qualification</h4>
+                <h4 class="modal-title">Edit Worker Schedule</h4>
             </div>
-            <form role="form" action="/qualifications/update" method="POST">
+            <form role="form" action="/worker-schedule/update" method="POST">
+                <input name="id" type="hidden" id="editWorkerScheduleId">
                 <div class="modal-body">
                     <div class="form-group">
-                        <input name="id" type="hidden" id="editQualificationId">
-                        <label for="editQualificationName">Name</label>
-                        <input name="name" type="text" class="form-control" id="editQualificationName" placeholder="Name" required>
+                        <label for="editWorker">Worker</label>
+                        <input name="workerId" type="text" class="form-control" id="editWorker" placeholder="Worker Id" required>
                     </div>
                     <div class="form-group">
-                        <label for="editRepairTypesList">Repair Type</label>
-                        <select name="repairTypeId" id="editRepairTypesList" class="form-control select2" style="width: 100%;">
-                            <option data-th-each="repairType : ${repairTypes}" data-th-value="${repairType.id}"
-                                    data-th-text="${repairType.name}"></option>
-                        </select>
+                        <label for="editDate">Date</label>
+                        <input name="date" type="text" class="form-control" id="editDate" placeholder="Date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLaborIntensity">Labor Intensity</label>
+                        <input name="laborIntensity" type="text" class="form-control" id="editLaborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editMaintenanceScheduleId">Maintenance Work Id</label>
+                        <input name="maintenaceScheduleId" type="text" class="form-control" id="editMaintenanceScheduleId" placeholder="Maintenance work id" required>
                     </div>
                 </div>
                 <!-- /.box-body -->

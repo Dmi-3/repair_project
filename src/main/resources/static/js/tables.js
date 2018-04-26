@@ -61,45 +61,54 @@ var editQualification = function (id, name, repairTypeId) {
     $("#editRepairTypesList").val(repairTypeId).trigger('change');
 };
 
-var editWorker = function (id, name, qualifications) {
+var editWorker = function (id, name, qualifications, tariffRate) {
     $("#editWorkerId").val(id);
     $("#editWorkerName").val(name);
     $("#editQualificationsList").val($.parseJSON(qualifications)).trigger('change');
+    $("#editTariffRate").val(tariffRate);
 };
 
-var editMaintenanceSchedule = function (id, equipmentId, repairTypeId, workersIds, laborIntensity, date) {
+var editMaintenanceSchedule = function (id, equipmentId, repairTypeId, workerId, laborIntensity, date) {
 
     $("#editMaintenanceScheduleId").val(id);
     $("#editEquipmentList").val(equipmentId).trigger('change');
     $("#editRepairTypesList").val(repairTypeId).trigger('change');
-    $("#editWorkersList").val($.parseJSON(workersIds)).trigger('change');
+    $("#editWorker").val(workerId).trigger('change');
     $("#editLaborIntensity").val(laborIntensity);
     $("#editDate").val(date);
 };
 
-var editMainSchedule = function (id, equipmentId, repairTypeId, workersIds, laborIntensity, date) {
+var editMainSchedule = function (id, equipmentId, repairTypeId, workerId, laborIntensity, date) {
+    var editWorkersList = $("#editWorkersList");
     var editRepairTypeList = $("#editRepairTypesList");
     var editEquipmentsList = $("#editEquipmentList");
-
+    var editDate =  $("#editDate");
+    editDate.val(date);
     $("#editMainScheduleId").val(id);
     editRepairTypeList.val(equipmentId).trigger('change');
     editEquipmentsList.val(repairTypeId).trigger('change');
-    $("#editWorkersList").val($.parseJSON(workersIds)).trigger('change');
     $("#editLaborIntensity").val(laborIntensity);
+
+
+    editWorkersList.val(workerId).trigger('change');
+
+};
+
+var editWorkerSchedule = function (id, workerId, date, laborIntensity, maintenanceScheduleId) {
+    console.log("Test");
+    $("#editWorkerScheduleId").val(id);
+    $("#editWorker").val(workerId);
     $("#editDate").val(date);
-
-    editRepairTypeList.change(function () {
-        sendStandardValueRequest(editRepairTypeList.val(), editEquipmentsList.val(), "#editLaborIntensity")
-    });
-
-    editEquipmentsList.change(function () {
-        sendStandardValueRequest(editRepairTypeList.val(), editEquipmentsList.val(),"#editLaborIntensity")
-    });
+    $("#editLaborIntensity").val(laborIntensity);
+    $("#editMaintenanceScheduleId").val(maintenanceScheduleId);
 };
 
 var autoSetLaborIntensity = function () {
     var repairTypeList = $("#repairTypesList");
     var equipmentsList = $("#equipmentList");
+
+    var editRepairTypeList = $("#editRepairTypesList");
+    var editEquipmentsList = $("#editEquipmentList");
 
     sendStandardValueRequest(repairTypeList.val(), equipmentsList.val(), "#laborIntensity");
 
@@ -111,7 +120,29 @@ var autoSetLaborIntensity = function () {
         sendStandardValueRequest(repairTypeList.val(), equipmentsList.val(),"#laborIntensity")
     });
 
+    editEquipmentsList.change(function () {
+        sendStandardValueRequest(editRepairTypeList.val(), editEquipmentsList.val(),"#editLaborIntensity")
+    });
 
+    editRepairTypeList.change(function () {
+        sendStandardValueRequest(editRepairTypeList.val(), editEquipmentsList.val(), "#editLaborIntensity")
+    });
+
+
+};
+
+var autoSetFreeWorkers = function (repairTypeListId, workersListId, dateId) {
+    var repairTypeList = $(repairTypeListId);
+    var workersList = $(workersListId);
+    var date = $(dateId);
+
+    date.change(function () {
+        sendForGettingFreeWorkersRequest(repairTypeList.val(), date.val(), workersList)
+    });
+
+    repairTypeList.change(function () {
+        sendForGettingFreeWorkersRequest(repairTypeList.val(), date.val(), workersList)
+    });
 };
 
 var sendStandardValueRequest = function (equipmentId, repairTypeId, laborIntensityInputId) {
@@ -127,7 +158,31 @@ var sendStandardValueRequest = function (equipmentId, repairTypeId, laborIntensi
             $(laborIntensityInputId).val(response);
         }
     });
-}
+};
+
+var sendForGettingFreeWorkersRequest = function (repairTypeId, date, workersList) {
+    $.ajax({
+        type: "POST",
+        cache: false,
+        url: '/workers/getByRepairType',
+        data: {
+            repairTypeId: repairTypeId,
+            date: date
+        },
+        success: function (response) {
+            workersList.find('option').remove();
+            $.each(response, function(i, worker){
+                var option = "<option value=" + i + '>' + worker + "</option>";
+                workersList.append(option);
+            });
+        },
+        error: function (response)
+        {
+            alert("error");
+        }
+    });
+
+};
 
 /*
 var removeCategories = function () {

@@ -42,6 +42,7 @@
                         <li><a th:href="@{/repair-standards}"> <i class="fa fa-circle-o"></i> <span>Repair Standards</span></a></li>
                         <li class="active"><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
                         <li><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
+                        <li><a th:href="@{/worker-schedule}"> <i class="fa fa-circle-o"></i> <span>Worker Schedule</span></a></li>
                     </ul>
                 </li>
             </ul>
@@ -109,6 +110,7 @@
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th>Qualifications</th>
+                                        <th>Tariff Rate</th>
                                         <th class="no-sort">Action</th>
                                     </tr>
                                     </thead>
@@ -124,8 +126,9 @@
                                         <td class="id-column" data-th-text="${worker.id}">...</td>
                                         <td class="name-column" data-th-text="${worker.name}">...</td>
                                         <td class="qualifications-column" data-th-text="${worker.qualificationsNames}">...</td>
+                                        <td class="tariff-rate-column" data-th-text="${worker.tariffRate}">...</td>
                                         <td><a th:onclick="'editWorker(\'' + ${worker.id} + '\', \'' + ${worker.name} + '\', \''
-                                        + ${worker.qualificationsIds} + '\');'"
+                                        + ${worker.qualificationsIds} + '\', \'' + ${worker.tariffRate} + '\');'"
                                                style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
                                     </tr>
                                     </tbody>
@@ -177,6 +180,10 @@
                                     data-th-text="${qualification.name}"></option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="tariffRate">Name</label>
+                        <input name="tariffRate" type="text" class="form-control" id="tariffRate" placeholder="Tariff Rate" required>
+                    </div>
                 </div>
                 <!-- /.box-body -->
                 <div class="modal-footer">
@@ -211,6 +218,10 @@
                             <option data-th-each="qualification : ${qualifications}" data-th-value="${qualification.id}"
                                     data-th-text="${qualification.name}"></option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTariffRate">Tariff Rate</label>
+                        <input name="tariffRate" type="text" class="form-control" id="editTariffRate" placeholder="Tariff Rate" required>
                     </div>
                 </div>
                 <!-- /.box-body -->

@@ -1,8 +1,10 @@
 package com.ssau.repair.project.repair_project.rest.resources;
 
 import com.ssau.repair.project.repair_project.entities.Qualification;
+import com.ssau.repair.project.repair_project.entities.RepairType;
 import com.ssau.repair.project.repair_project.entities.Worker;
 import com.ssau.repair.project.repair_project.repositories.QualificationRepository;
+import com.ssau.repair.project.repair_project.repositories.RepairTypeRepository;
 import com.ssau.repair.project.repair_project.repositories.WorkerRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/workers")
@@ -26,13 +26,14 @@ public class WorkerResource
 
     private final WorkerRepository workerRepository;
     private final QualificationRepository qualificationRepository;
-
+    private final RepairTypeRepository repairTypeRepository;
 
     @Autowired
-    public WorkerResource(WorkerRepository workerRepository, QualificationRepository qualificationRepository)
+    public WorkerResource(WorkerRepository workerRepository, QualificationRepository qualificationRepository, RepairTypeRepository repairTypeRepository)
     {
         this.workerRepository = workerRepository;
         this.qualificationRepository = qualificationRepository;
+        this.repairTypeRepository = repairTypeRepository;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -54,6 +55,7 @@ public class WorkerResource
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String create(@RequestParam(value = "name", required = false) String name,
+                         @RequestParam(value = "tariffRate", required = false) Integer tariffRate,
                          @RequestParam(value = "qualificationsIds", required = false) String[] qualificationsIds,
                          final RedirectAttributes redirectAttributes)
     {
@@ -69,13 +71,19 @@ public class WorkerResource
             return getRedirectWorkersPage();
         }
 
+        if (tariffRate == null || tariffRate < 0)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The incorrect value of worker's tariff rate.");
+            return getRedirectWorkersPage();
+        }
+
         try
         {
             Set<Qualification> qualifications = new HashSet<>();
 
             checkQualifications(qualificationsIds, qualifications);
 
-            Worker worker = new Worker(name, qualifications);
+            Worker worker = new Worker(name, tariffRate, qualifications);
 
             workerRepository.save(worker);
             redirectAttributes.addFlashAttribute("success", "The worker " + name + " was added in data base.");
@@ -127,7 +135,7 @@ public class WorkerResource
 
                 if (worker == null)
                 {
-                    return "The worker object with id " + id + " wasn't found";
+                    continue;
                 }
 
                 workerRepository.delete(worker);
@@ -189,4 +197,67 @@ public class WorkerResource
     {
         return "redirect:/workers";
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/getByRepairType", method = RequestMethod.POST, produces = "application/json")
+    public HashMap<Long, String> getWorkersByRepairType(@RequestParam(value = "repairTypeId", required = false) Long repairTypeId,
+                                                        @RequestParam(value = "date", required = false) String date)
+    {
+        if (repairTypeId == null || date == null || date.trim().isEmpty())
+        {
+            return null;
+        }
+
+        RepairType repairType = repairTypeRepository.getById(repairTypeId);
+
+        if (repairType == null)
+        {
+            return null;
+        }
+
+        Set<Qualification> qualifications = repairType.getQualifications();
+
+        if (qualifications == null || qualifications.isEmpty())
+        {
+            return null;
+        }
+
+        HashMap<Long, String> workers = new HashMap<>();
+
+        for (Qualification qualification : qualifications)
+        {
+            if (qualification == null)
+            {
+                continue;
+            }
+
+            for (Worker worker : qualification.getWorkers())
+            {
+                workers.put(worker.getId(), worker.getName());
+            }
+        }
+
+        return workers;
+        /*return selectUnemploedWorkers(workers, date);*/
+    }
+
+  /*  private HashMap<Long, String> selectUnemploedWorkers(Set<Worker> workers, String date)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+        LocalDate localDate = LocalDate.parse(date, formatter);
+        HashMap<Long, String> freeWorkers = new HashMap<>();
+
+        for (Worker worker : workers)
+        {
+            Set<MaintenanceSchedule> maintenanceSchedules = worker.getMaintenanceSchedules();
+            Long count = maintenanceSchedules.stream().filter(t -> t.getDate().equals(localDate)).count();
+
+            if (count > 0)
+            {
+                continue;
+            }
+            freeWorkers.put(worker.getId(), worker.getName());
+        }
+        return freeWorkers;
+    }*/
 }

@@ -42,6 +42,7 @@
                 <li><a th:href="@{/repair-standards}"> <i class="fa fa-circle-o"></i> <span>Repair Standards</span></a></li>
                 <li><a th:href="@{/workers}"> <i class="fa fa-circle-o"></i> <span>Workers</span></a></li>
                 <li><a th:href="@{/qualifications}"> <i class="fa fa-circle-o"></i> <span>Qualifications</span></a></li>
+                <li><a th:href="@{/worker-schedule}"> <i class="fa fa-circle-o"></i> <span>Worker Schedule</span></a></li>
             </ul>
    	 	</li>
       </ul>
@@ -128,10 +129,10 @@
                                       <td class="equipment-column" data-th-text="${maintenanceScheduleObject.equipment.name}">...</td>
                                       <td class="repair-type-column" data-th-text="${maintenanceScheduleObject.repairType.name}">...</td>
                                       <td class="labor-intensity-column" data-th-text="${maintenanceScheduleObject.laborIntensity}">...</td>
-                                      <td class="workers-column" data-th-text="${maintenanceScheduleObject.workersNames}">...</td>
+                                      <td class="worker-column" data-th-text="${maintenanceScheduleObject.worker.name}">...</td>
                                       <td class="date-column" data-th-text="${maintenanceScheduleObject.date}">...</td>
                                       <td><a th:onclick="'editMaintenanceSchedule(\'' + ${maintenanceScheduleObject.id} + '\', \'' + ${maintenanceScheduleObject.equipment.id} + '\', \''
-                                        + ${maintenanceScheduleObject.repairType.id} + '\', \'' + ${maintenanceScheduleObject.workersIds} + '\', \''
+                                        + ${maintenanceScheduleObject.repairType.id} + '\', \'' + ${maintenanceScheduleObject.worker.id} + '\', \''
                                         + ${maintenanceScheduleObject.laborIntensity} + '\', \'' + ${maintenanceScheduleObject.date} + '\');'"
                                              style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
                                   </tr>
@@ -193,8 +194,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="workersList">Workers</label>
-                        <select name="workersIds" id="workersList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                        <label for="worker">Worker</label>
+                        <select name="workerId" id="worker" class="form-control select2" style="width: 100%;">
                             <option data-th-each="worker : ${workers}" data-th-value="${worker.id}"
                                     data-th-text="${worker.name}"></option>
                         </select>
@@ -246,8 +247,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="editWorkersList">Workers</label>
-                        <select name="workersIds" id="editWorkersList" class="form-control select2" style="width: 100%;" multiple="multiple">
+                        <label for="editWorker">Worker</label>
+                        <select name="workerId" id="editWorker" class="form-control select2" style="width: 100%;">
                             <option data-th-each="worker : ${workers}" data-th-value="${worker.id}"
                                     data-th-text="${worker.name}"></option>
                         </select>
