@@ -17,14 +17,16 @@ public class Equipment implements Serializable
     @Column(name = "Name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "equipment_category_id", referencedColumnName = "id", nullable = false)
     private EquipmentCategory equipmentCategory;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
+    //@OneToMany(mappedBy = "equipment")
     private Set<MaintenanceSchedule> maintenanceSchedules;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
+    //@OneToMany(mappedBy = "equipment")
     private Set<RepairHistory> repairHistory;
 
     public Equipment()

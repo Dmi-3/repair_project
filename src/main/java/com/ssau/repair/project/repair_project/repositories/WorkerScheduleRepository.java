@@ -1,5 +1,6 @@
 package com.ssau.repair.project.repair_project.repositories;
 
+import com.ssau.repair.project.repair_project.entities.Worker;
 import com.ssau.repair.project.repair_project.entities.WorkerSchedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,5 +11,6 @@ public interface WorkerScheduleRepository extends JpaRepository<WorkerSchedule, 
 {
     WorkerSchedule getById(Long id);
 
-    Set<WorkerSchedule> getByIdAndDate(Long id, LocalDate localDate);
+    Set<WorkerSchedule> getByWorkerAndDate(Worker worker, LocalDate localDate);
+
 }

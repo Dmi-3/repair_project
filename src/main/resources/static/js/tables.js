@@ -39,12 +39,13 @@ var editRepairType = function(id, name)
     $("#editRepairTypeName").val(name);
 };
 
-var editRepairStandard = function (id, name, categoryId, repairTypeId, laborIntensity) {
+var editRepairStandard = function (id, name, categoryId, repairTypeId, laborIntensity, repairPeriodicity) {
     $("#editRepairStandardId").val(id);
     $("#editRepairStandardName").val(name);
     $("#editCategoriesList").val(categoryId).trigger('change');
     $("#editRepairTypesList").val(repairTypeId).trigger('change');
     $("#editLaborIntensity").val(laborIntensity);
+    $("#editRepairPeriodicity").val(repairPeriodicity);
 };
 
 var editRepairHistory = function (id, equipmentId, repairTypeId, equipmentDowntime, date) {

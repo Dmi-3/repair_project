@@ -20,7 +20,7 @@ public class Qualification
     @JoinColumn(name = "Repair_type_id")
     private RepairType repairType;
 
-    @ManyToMany(mappedBy = "qualifications")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "qualifications")
     private Set<Worker> workers;
 
     public Qualification()

@@ -34,7 +34,7 @@ public class MaintenanceSchedule implements Serializable
     @JoinColumn(name = "worker")
     private Worker worker;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "maintenanceSchedule")
+    @OneToMany(mappedBy = "maintenanceSchedule", cascade = CascadeType.ALL)
     private Set<WorkerSchedule> workerSchedules;
 
     public MaintenanceSchedule()

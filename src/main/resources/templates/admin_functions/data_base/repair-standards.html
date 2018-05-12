@@ -24,6 +24,7 @@
                     </ul>
                 </li>
                 <li><a th:href="@{/main-schedule}"><i class="fa fa-calendar"></i>Main Schedule</a></li>
+                <li><a th:href="@{/repair-recommendation}"><i class="fa fa-calendar"></i>Repair Recommendations</a></li>
                 <li class="header">ADMINISTRATOR FUNCTIONS</li>
                 <li class="active treeview">
                     <a href="#">
@@ -112,6 +113,7 @@
                                         <th>Equipment Category</th>
                                         <th>Repair Type</th>
                                         <th>Labor Intensity</th>
+                                        <th>Repair Periodicity</th>
                                         <th class="no-sort">Action</th>
                                     </tr>
                                     </thead>
@@ -130,10 +132,12 @@
                                         <td class="category-column" data-th-text="${repairStandard.equipmentCategory.name}">...</td>
                                         <td class="repair-type-column" data-th-text="${repairStandard.repairType.name}">...</td>
                                         <td class="labor-intensity-column" data-th-text="${repairStandard.laborIntensity}">...</td>
-                                        <td><a th:onclick="'editRepairStandard(\'' + ${repairStandard.id} + '\', \'' + ${repairStandard.name}
-                                        + '\', \'' + ${repairStandard.equipmentCategory.id} + '\', \'' + ${repairStandard.repairType.id} + '\', \''
-                                        + ${repairStandard.laborIntensity} + '\');'"
-                                               style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a></td>
+                                        <td class="repair-intensity-column" data-th-text="${repairStandard.repairPeriodicity}">...</td>
+                                        <td>
+                                            <!--<a th:onclick="'editRepairStandard(\'' + ${repairStandard.id} + '\', \'' + ${repairStandard.name}-->
+                                        <!--+ '\', \'' + ${repairStandard.equipmentCategory.id} + '\', \'' + ${repairStandard.repairType.id} + '\', \''-->
+                                        <!--+ ${repairStandard.laborIntensity} + '\', \'' + ${repairStandard.repairPeriodicity} + '\');" style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a>-->
+                                        </td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -192,8 +196,11 @@
                     </div>
                     <div class="form-group">
                         <label for="repairStandardLaborIntensity">Labor Intensity</label>
-                        <input name="laborIntensity" type="text" class="form-control" id="repairStandardLaborIntensity" placeholder="Labor Intensity"
-                               required>
+                        <input name="laborIntensity" type="text" class="form-control" id="repairStandardLaborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="repairPeriodicity">Repair Periodicity</label>
+                        <input name="repairPeriodicity" type="text" class="form-control" id="repairPeriodicity" placeholder="Repair Periodicity" required>
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -240,6 +247,10 @@
                     <div class="form-group">
                         <label for="editLaborIntensity">Labor Intensity</label>
                         <input name="laborIntensity" type="text" class="form-control" id="editLaborIntensity" placeholder="Labor Intensity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="repairPeriodicity">Repair Periodicity</label>
+                        <input name="repairPeriodicity" type="text" class="form-control" id="editRepairPeriodicity" placeholder="Repair Periodicity" required>
                     </div>
                 </div>
                 <!-- /.box-body -->

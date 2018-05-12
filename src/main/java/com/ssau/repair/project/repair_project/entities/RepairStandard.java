@@ -27,17 +27,21 @@ public class RepairStandard implements Serializable
     @Column(name = "Labor_intensity")
     private Integer laborIntensity;
 
+    @Column(name = "Repair_periodicity")
+    private Integer repairPeriodicity;
+
     public RepairStandard()
     {
 
     }
 
-    public RepairStandard(String name, EquipmentCategory equipmentCategory, RepairType repairType, Integer laborIntensity)
+    public RepairStandard(String name, EquipmentCategory equipmentCategory, RepairType repairType, Integer laborIntensity, Integer repairPeriodicity)
     {
         this.name = name;
         this.equipmentCategory = equipmentCategory;
         this.repairType = repairType;
         this.laborIntensity = laborIntensity;
+        this.repairPeriodicity = repairPeriodicity;
     }
 
     public Long getId()
@@ -83,5 +87,15 @@ public class RepairStandard implements Serializable
     public void setLaborIntensity(Integer laborIntensity)
     {
         this.laborIntensity = laborIntensity;
+    }
+
+    public Integer getRepairPeriodicity()
+    {
+        return repairPeriodicity;
+    }
+
+    public void setRepairPeriodicity(Integer repairPeriodicity)
+    {
+        this.repairPeriodicity = repairPeriodicity;
     }
 }

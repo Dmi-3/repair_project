@@ -17,10 +17,12 @@ public class EquipmentCategory implements Serializable
     @Column(name = "Name")
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "equipmentCategory")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "equipmentCategory")
+    //@OneToMany(mappedBy = "equipmentCategory")
     private Set<Equipment> equipments;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "equipmentCategory")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "equipmentCategory")
+    //@OneToMany(fetch = FetchType.EAGER, mappedBy = "equipmentCategory")
     private Set<RepairStandard> repairStandards;
 
     public EquipmentCategory()

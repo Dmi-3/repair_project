@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "Worker")
-public class Worker
+public class Worker implements Comparable<Worker>
 {
     @Id
     @SequenceGenerator(name = "worker_sequence", sequenceName = "worker_id_sequence", allocationSize = 1)
@@ -24,10 +24,12 @@ public class Worker
     @JoinTable(name = "worker_qualifications", joinColumns = @JoinColumn(name = "worker_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "qualification_id", referencedColumnName = "id"))
     private Set<Qualification> qualifications;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "worker")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "worker")
+    //@OneToMany(fetch = FetchType.EAGER, mappedBy = "worker")
     private Set<MaintenanceSchedule> maintenanceSchedules;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "worker")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "worker")
+    //@OneToMany(fetch = FetchType.EAGER, mappedBy = "worker")
     private Set<WorkerSchedule> workerSchedules;
 
     public Worker()
@@ -105,5 +107,11 @@ public class Worker
     public void setWorkerSchedules(Set<WorkerSchedule> workerSchedules)
     {
         this.workerSchedules = workerSchedules;
+    }
+
+    @Override
+    public int compareTo(Worker o)
+    {
+        return tariffRate.compareTo(o.getTariffRate());
     }
 }

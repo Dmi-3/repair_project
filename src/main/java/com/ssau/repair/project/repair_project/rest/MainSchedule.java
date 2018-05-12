@@ -2,6 +2,7 @@ package com.ssau.repair.project.repair_project.rest;
 
 import com.ssau.repair.project.repair_project.entities.*;
 import com.ssau.repair.project.repair_project.repositories.*;
+import com.ssau.repair.project.repair_project.util.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +15,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/main-schedule")
@@ -29,6 +29,7 @@ public class MainSchedule
     private final RepairStandardRepository repairStandardRepository;
     private final RepairHistoryRepository repairHistoryRepository;
     private final WorkerScheduleRepository workerScheduleRepository;
+    private final Utils utils;
 
     public MainSchedule(MaintenanceScheduleRepository maintenanceScheduleRepository, WorkerRepository workerRepository, EquipmentRepository equipmentRepository, RepairTypeRepository repairTypeRepository, RepairStandardRepository repairStandardRepository, RepairHistoryRepository repairHistoryRepository, WorkerScheduleRepository workerScheduleRepository)
     {
@@ -39,6 +40,7 @@ public class MainSchedule
         this.repairStandardRepository = repairStandardRepository;
         this.repairHistoryRepository = repairHistoryRepository;
         this.workerScheduleRepository = workerScheduleRepository;
+        this.utils = new Utils(repairHistoryRepository, workerScheduleRepository, maintenanceScheduleRepository);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -133,7 +135,7 @@ public class MainSchedule
 
             MaintenanceSchedule maintenanceSchedule = new MaintenanceSchedule(equipment, repairType, worker, laborIntensity, localDate);
             maintenanceScheduleRepository.save(maintenanceSchedule);
-            saveInWorkerSchedule(maintenanceSchedule, 8);
+            utils.saveInWorkerSchedule(maintenanceSchedule, 8);
             redirectAttributes.addFlashAttribute("success", "The maintenance schedule was added in data base.");
         }
         catch (Exception ex)
@@ -283,66 +285,13 @@ public class MainSchedule
                 workerScheduleRepository.delete(workerSchedule);
             }
 
-            saveInWorkerSchedule(maintenanceSchedule, 8);
+            utils.saveInWorkerSchedule(maintenanceSchedule, 8);
         }
 
         redirectAttributes.addFlashAttribute("success", "The maintenance schedule with id" + maintenaceScheduleId + " was changed.");
         return getRedirectMainSchedulesPage();
     }
 
-    private void saveInWorkerSchedule(MaintenanceSchedule maintenanceSchedule, Integer workDay)
-    {
-        Worker worker = maintenanceSchedule.getWorker();
-        Integer laborIntensity = maintenanceSchedule.getLaborIntensity();
-        Integer days = 0;
-        while (laborIntensity > 0)
-        {
-            WorkerSchedule workerSchedule = null;
-            LocalDate date = maintenanceSchedule.getDate().plusDays(days);
-            Integer freeTime = workDay - getWorkHours(workerScheduleRepository.getByIdAndDate(worker.getId(), date));
-
-            if (freeTime <= 0)
-            {
-                days++;
-                continue;
-            }
-
-            if (laborIntensity >= freeTime)
-            {
-                workerSchedule = new WorkerSchedule(worker, date, freeTime, maintenanceSchedule);
-                laborIntensity -= freeTime;
-                days++;
-            }
-            else
-            {
-                workerSchedule = new WorkerSchedule(worker, maintenanceSchedule.getDate().plusDays(days), laborIntensity, maintenanceSchedule);
-                laborIntensity = 0;
-            }
-            workerScheduleRepository.save(workerSchedule);
-        }
-    }
-
-    private Integer getWorkHours(Set<WorkerSchedule> workerSchedules)
-    {
-        Integer workHours = 0;
-
-        if (workerSchedules == null || workerSchedules.isEmpty())
-        {
-            return workHours;
-        }
-
-        for (WorkerSchedule workerSchedule : workerSchedules)
-        {
-            if (workerSchedule == null)
-            {
-                continue;
-            }
-
-            workHours = +0;
-        }
-
-        return workHours;
-    }
 
     private String getRedirectMainSchedulesPage()
     {

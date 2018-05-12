@@ -103,6 +103,7 @@ public class RepairStandardResource
                          @RequestParam(value = "categoryId", required = false) Long categoryId,
                          @RequestParam(value = "repairTypeId", required = false) Long repairTypeId,
                          @RequestParam(value = "laborIntensity", required = false) Integer laborIntensity,
+                         @RequestParam(value = "repairPeriodicity", required = false) Integer repairPeriodicity,
                          final RedirectAttributes redirectAttributes)
     {
 
@@ -130,6 +131,12 @@ public class RepairStandardResource
             return getRedirectRepairStandardsPage();
         }
 
+        if (repairPeriodicity == null || repairPeriodicity <= 0)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The incorrect value of repair periodicity for the repair standard wasn't found.");
+            return getRedirectRepairStandardsPage();
+        }
+
         try
         {
             EquipmentCategory equipmentCategory = equipmentCategoryRepository.getById(categoryId);
@@ -147,7 +154,7 @@ public class RepairStandardResource
                 return getRedirectRepairStandardsPage();
             }
 
-            RepairStandard repairStandard = new RepairStandard(name, equipmentCategory, repairType, laborIntensity);
+            RepairStandard repairStandard = new RepairStandard(name, equipmentCategory, repairType, laborIntensity, repairPeriodicity);
 
             repairStandardRepository.save(repairStandard);
             redirectAttributes.addFlashAttribute("success", "The repair standard was added in data base.");
@@ -201,6 +208,7 @@ public class RepairStandardResource
                          @RequestParam(value = "categoryId", required = false) Long categoryId,
                          @RequestParam(value = "repairTypeId", required = false) Long repairTypeId,
                          @RequestParam(value = "laborIntensity", required = false) Integer laborIntensity,
+                         @RequestParam(value = "repairPeriodicity", required = false) Integer repairPeriodicity,
                          final RedirectAttributes redirectAttributes)
     {
         if (id == null)
@@ -233,6 +241,12 @@ public class RepairStandardResource
             return getRedirectRepairStandardsPage();
         }
 
+        if (repairPeriodicity == null || repairPeriodicity <= 0)
+        {
+            redirectAttributes.addFlashAttribute("warning", "The incorrect value of repair periodicity for the repair standard wasn't found.");
+            return getRedirectRepairStandardsPage();
+        }
+
         try
         {
             RepairStandard repairStandard = repairStandardRepository.getById(id);
@@ -262,6 +276,7 @@ public class RepairStandardResource
             repairStandard.setEquipmentCategory(equipmentCategory);
             repairStandard.setRepairType(repairType);
             repairStandard.setLaborIntensity(laborIntensity);
+            repairStandard.setRepairPeriodicity(repairPeriodicity);
             repairStandardRepository.save(repairStandard);
 
             redirectAttributes.addFlashAttribute("success", "The repair standard with id" + id + " was changed.");

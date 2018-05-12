@@ -3,9 +3,8 @@ package com.ssau.repair.project.repair_project.rest.resources;
 import com.ssau.repair.project.repair_project.entities.Qualification;
 import com.ssau.repair.project.repair_project.entities.RepairType;
 import com.ssau.repair.project.repair_project.entities.Worker;
-import com.ssau.repair.project.repair_project.repositories.QualificationRepository;
-import com.ssau.repair.project.repair_project.repositories.RepairTypeRepository;
-import com.ssau.repair.project.repair_project.repositories.WorkerRepository;
+import com.ssau.repair.project.repair_project.repositories.*;
+import com.ssau.repair.project.repair_project.util.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,13 +26,17 @@ public class WorkerResource
     private final WorkerRepository workerRepository;
     private final QualificationRepository qualificationRepository;
     private final RepairTypeRepository repairTypeRepository;
+    private final Utils utils;
 
     @Autowired
-    public WorkerResource(WorkerRepository workerRepository, QualificationRepository qualificationRepository, RepairTypeRepository repairTypeRepository)
+    public WorkerResource(WorkerRepository workerRepository, QualificationRepository qualificationRepository,
+                          RepairTypeRepository repairTypeRepository, RepairHistoryRepository repairHistoryRepository,
+                          WorkerScheduleRepository workerScheduleRepository, MaintenanceScheduleRepository maintenanceScheduleRepository)
     {
         this.workerRepository = workerRepository;
         this.qualificationRepository = qualificationRepository;
         this.repairTypeRepository = repairTypeRepository;
+        this.utils = new Utils(repairHistoryRepository, workerScheduleRepository, maintenanceScheduleRepository);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -215,30 +218,20 @@ public class WorkerResource
             return null;
         }
 
-        Set<Qualification> qualifications = repairType.getQualifications();
+        List<Worker> workers = utils.getWorkersByRepairType(repairType);
 
-        if (qualifications == null || qualifications.isEmpty())
+        if (workers == null || workers.isEmpty())
         {
             return null;
         }
 
-        HashMap<Long, String> workers = new HashMap<>();
-
-        for (Qualification qualification : qualifications)
+        HashMap<Long, String> workersMap = new HashMap<>();
+        for (Worker worker : workers)
         {
-            if (qualification == null)
-            {
-                continue;
-            }
-
-            for (Worker worker : qualification.getWorkers())
-            {
-                workers.put(worker.getId(), worker.getName());
-            }
+            workersMap.put(worker.getId(), worker.getName());
         }
 
-        return workers;
-        /*return selectUnemploedWorkers(workers, date);*/
+        return workersMap;
     }
 
   /*  private HashMap<Long, String> selectUnemploedWorkers(Set<Worker> workers, String date)
