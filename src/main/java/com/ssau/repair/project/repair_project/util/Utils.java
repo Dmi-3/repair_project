@@ -26,14 +26,14 @@ public class Utils
         this.maintenanceScheduleRepository = maintenanceScheduleRepository;
     }
 
-    public Map<Equipment, Pair<RepairType, Integer>> getRepairMap(List<Equipment> equipments)
+    public MyLinkedMap<Equipment, Pair<RepairType, Integer>> getRepairMap(List<Equipment> equipments)
     {
         if (equipments == null || equipments.isEmpty())
         {
             return null;
         }
 
-        Map<Equipment, Pair<RepairType, Integer>> repairMap = new HashMap<>();
+        MyLinkedMap<Equipment, Pair<RepairType, Integer>> repairMap = new MyLinkedMap<>();
         for (Equipment equipment : equipments)
         {
             Set<RepairStandard> repairStandards = equipment.getEquipmentCategory().getRepairStandards();
@@ -167,4 +167,5 @@ public class Utils
 
         return maintenanceSchedule != null;
     }
+
 }

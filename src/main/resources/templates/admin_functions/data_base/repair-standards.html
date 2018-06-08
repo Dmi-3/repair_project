@@ -134,6 +134,8 @@
                                         <td class="labor-intensity-column" data-th-text="${repairStandard.laborIntensity}">...</td>
                                         <td class="repair-intensity-column" data-th-text="${repairStandard.repairPeriodicity}">...</td>
                                         <td>
+                                            <a href="#" style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a>
+
                                             <!--<a th:onclick="'editRepairStandard(\'' + ${repairStandard.id} + '\', \'' + ${repairStandard.name}-->
                                         <!--+ '\', \'' + ${repairStandard.equipmentCategory.id} + '\', \'' + ${repairStandard.repairType.id} + '\', \''-->
                                         <!--+ ${repairStandard.laborIntensity} + '\', \'' + ${repairStandard.repairPeriodicity} + '\');" style="cursor: pointer;" data-toggle="modal" data-target="#modal-edit">Edit</a>-->

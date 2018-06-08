@@ -20,16 +20,14 @@ public class Worker implements Comparable<Worker>
     @Column(name = "TariffRate")
     private Integer tariffRate;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "worker_qualifications", joinColumns = @JoinColumn(name = "worker_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "qualification_id", referencedColumnName = "id"))
     private Set<Qualification> qualifications;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "worker")
-    //@OneToMany(fetch = FetchType.EAGER, mappedBy = "worker")
     private Set<MaintenanceSchedule> maintenanceSchedules;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "worker")
-    //@OneToMany(fetch = FetchType.EAGER, mappedBy = "worker")
     private Set<WorkerSchedule> workerSchedules;
 
     public Worker()

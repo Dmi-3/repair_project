@@ -18,19 +18,15 @@ public class RepairType implements Serializable
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "repairType")
-    //@OneToMany(mappedBy = "repairType")
     private Set<RepairStandard> repairStandards;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "repairType")
-    //@OneToMany(mappedBy = "repairType")
     private Set<RepairHistory> repairHistory;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "repairType")
-    //@OneToMany(fetch = FetchType.EAGER, mappedBy = "repairType")
     private Set<Qualification> qualifications;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "repairType")
-    //@OneToMany(mappedBy = "repairType")
     private Set<MaintenanceSchedule> maintenanceSchedules;
 
     public RepairType()

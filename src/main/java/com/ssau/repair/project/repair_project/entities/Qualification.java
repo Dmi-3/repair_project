@@ -69,4 +69,6 @@ public class Qualification
         this.workers = workers;
     }
 
+
+
 }
