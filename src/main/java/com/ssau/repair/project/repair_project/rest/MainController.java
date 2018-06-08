@@ -2,6 +2,7 @@ package com.ssau.repair.project.repair_project.rest;
 
 import com.ssau.repair.project.repair_project.entities.*;
 import com.ssau.repair.project.repair_project.hungarian.Hungarian;
+import com.ssau.repair.project.repair_project.hungarian.HungarianAlgorithm;
 import com.ssau.repair.project.repair_project.repositories.*;
 import com.ssau.repair.project.repair_project.util.MyLinkedMap;
 import com.ssau.repair.project.repair_project.util.Pair;
@@ -82,12 +83,13 @@ public class MainController
         MyLinkedMap<Equipment, RepairType> needRepairMap = getNeedRepairEquipment(equipmentList);
         MyLinkedMap<Worker, LocalDate> workers = getFreeWorkerInNearDays(needRepairMap.size());
         //TODO:Нужно как то подобрать список квалифицированных + неквалифицированных работников
-        int[][] matrix = getWorkerToRepairMatrix(needRepairMap, workers);
-        Hungarian hungarian = new Hungarian(matrix);
-        int[] result = hungarian.getResult();
+        double[][] matrix = getWorkerToRepairMatrix(needRepairMap, workers);
+        //Hungarian hungarian = new Hungarian(matrix);
+        HungarianAlgorithm hungarianAlgorithm = new HungarianAlgorithm(matrix);
+        int[] result = hungarianAlgorithm.execute();
         for(int i = 0; i < result.length; i++)
         {
-            System.out.println(String.format("Row%d => Col%d (%d)", i + 1, result[i] + 1, matrix[i][result[i]])); // Rowi => Colj (value)
+            System.out.println(String.format("Row%d => Col%d (%f)", i + 1, result[i] + 1, matrix[i][result[i]])); // Rowi => Colj (value)
         }
 
         planMaintenance(needRepairMap, workers, result);
@@ -137,14 +139,14 @@ public class MainController
         return needRepairEquipments;
     }
 
-    private int[][] getWorkerToRepairMatrix(MyLinkedMap<Equipment,RepairType> plannedMaintenanceMap, MyLinkedMap<Worker, LocalDate> workers)
+    private double[][] getWorkerToRepairMatrix(MyLinkedMap<Equipment,RepairType> plannedMaintenanceMap, MyLinkedMap<Worker, LocalDate> workers)
     {
         if (plannedMaintenanceMap == null)
         {
             return null;
         }
 
-        int[][] matrix = new int[20][20];
+        double[][] matrix = new double[workers.size()][plannedMaintenanceMap.size()];
 
         for (int i = 0; i < matrix.length; i++)
         {
